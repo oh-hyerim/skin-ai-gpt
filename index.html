@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <title>피부 진단 웹사이트</title>
+</head>
+<body>
+  <header>
+    <h1>피부 진단 웹사이트</h1>
+  </header>
+
+  <main class="card">
+    <h2 class="subtitle">내 피부는 어떤 상태일까?</h2>
+    <p class="intro">항상 고민이였던 나의 피부<br>이제 내 진짜 피부를 만나보세요</p>
+  
+    <ul>
+        <li>매일 아침, 땅기는 얼굴이 익숙한 당신이라면</li>
+        <li>메이크업이 들뜨고 무너지는 날이 많다면</li>
+        <li>‘민감성’이라는 말이 너무 익숙한 사람이라면</li>
+      </ul>
+  
+    <a href="test.html" class="start-btn">피부 진단 시작하기 →</a>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 피부진단. All rights reserved.</p>
+  </footer>
+
+  <script>
+    fetch("/api/skinReport", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        skinType: "건성",
+        sensitive: "높음",
+        trouble: "중간",
+        barrier: "약함"
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("ai-result").textContent = data.result;
+    })
+    .catch(err => {
+      document.getElementById("ai-result").textContent = "AI 결과를 불러오는 데 실패했어요.";
+      console.error(err);
+    });
+  </script>
+</body>
+</html>
