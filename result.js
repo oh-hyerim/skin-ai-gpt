@@ -34,9 +34,6 @@ window.addEventListener("DOMContentLoaded", async () => {
     const data = await response.json();
     console.log("서버 응답 데이터:", data);
 
-    document.getElementById("ai-result").textContent =
-      data.result || "AI 결과를 불러오지 못했어요.";
-
     // 카드에 내용 분배
     const content = data.result;
     const sections = content.split(/\n?\d\.\s/).slice(1); // '1. 제목' 형식 기준 분리
