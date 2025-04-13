@@ -5,7 +5,15 @@ export default async function handler(req, res) {
     apiKey: process.env.OPENAI_API_KEY,
   });
 
-  const { skinType, sensitive, trouble, barrier } = req.body;
+  const {
+    skinType,
+    sensitive,
+    trouble,
+    barrier,
+    routineSummary,
+    choiceSummary,
+    productSummary
+  } = req.body;
 
   const prompt = `
 당신은 피부 전문가입니다.  
@@ -36,7 +44,7 @@ export default async function handler(req, res) {
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt }],
-      max_tokens: 700,
+      max_tokens: 1000,
     });
 
     res.status(200).json({ result: completion.choices[0].message.content });
