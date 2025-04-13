@@ -40,19 +40,20 @@ export default async function handler(req, res) {
 피부 전문가처럼 친절하고 신뢰가는 어조로 작성해주세요.
 `;
 
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: 1000,
-      console.log(completion);  // 또는 completion.choices 등
-    const data = await response.json();
-document.getElementById("ai-result").textContent = data.result || "AI 결과를 불러오지 못했어요.";
-    });
+try {
+  const completion = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: [{ role: "user", content: prompt }],
+    max_tokens: 1000,
+  });
 
-    res.status(200).json({ result: completion.choices[0].message.content });
-  } catch (error) {
-    console.error("OpenAI 호출 실패:", error);
-    res.status(500).json({ error: "GPT 호출 실패" });
-  }
+  // 응답이 어떤 형식으로 오는지 확인
+  console.log("GPT 응답:", completion);
+
+  // 사용자에게 결과 전달
+  res.status(200).json({ result: completion.choices[0].message.content });
+
+} catch (error) {
+  console.error("OpenAI 호출 실패:", error);
+  res.status(500).json({ error: "GPT 호출 실패" });
 }
