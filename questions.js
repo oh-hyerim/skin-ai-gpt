@@ -110,13 +110,26 @@ questions.forEach(({ text, tooltip }, i) => {
   legend.textContent = `${qNum}. ${text}`;
 
   if (tooltip) {
-    const tip = document.createElement("span");
-    tip.textContent = " ?";
-    tip.title = tooltip;
-    tip.style.cursor = "pointer";
-    tip.style.color = "#888";
-    tip.style.marginLeft = "5px";
-    legend.appendChild(tip);
+    const tipButton = document.createElement("button");
+    tipButton.textContent = "?";
+    tipButton.type = "button";
+    tipButton.className = "tooltip-button";
+
+    const tooltipBox = document.createElement("div");
+    tooltipBox.className = "tooltip-box";
+    tooltipBox.textContent = tooltip;
+    tooltipBox.style.display = "none";
+
+    tipButton.addEventListener("click", () => {
+      tooltipBox.style.display = tooltipBox.style.display === "none" ? "block" : "none";
+    });
+
+    const wrapper = document.createElement("span");
+    wrapper.style.marginLeft = "8px";
+    wrapper.appendChild(tipButton);
+    wrapper.appendChild(tooltipBox);
+
+    legend.appendChild(wrapper);
   }
 
   fieldset.appendChild(legend);
