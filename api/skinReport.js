@@ -46,6 +46,8 @@ export default async function handler(req, res) {
       messages: [{ role: "user", content: prompt }],
       max_tokens: 1000,
       console.log(completion);  // 또는 completion.choices 등
+    const data = await response.json();
+document.getElementById("ai-result").textContent = data.result || "AI 결과를 불러오지 못했어요.";
     });
 
     res.status(200).json({ result: completion.choices[0].message.content });
