@@ -29,7 +29,8 @@ export default async function handler(req, res) {
 6. 현재 루틴에서 주의할 점  
 7. 제품 사용 분석 및 추천
 
-피부 전문가처럼 친절하고 신뢰가는 어조로 작성해주세요.`;
+피부 전문가처럼 친절하고 신뢰가는 어조로 작성해주세요.
+`;
 
   try {
     const completion = await openai.chat.completions.create({
