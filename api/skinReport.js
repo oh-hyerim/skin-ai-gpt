@@ -45,6 +45,7 @@ export default async function handler(req, res) {
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 1000,
+      console.log(completion);  // 또는 completion.choices 등
     });
 
     res.status(200).json({ result: completion.choices[0].message.content });
