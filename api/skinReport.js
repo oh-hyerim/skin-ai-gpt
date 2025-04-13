@@ -32,16 +32,36 @@ const { skinType, sensitive, trouble, barrier, routineSummary, choiceSummary, pr
 피부 전문가처럼 친절하고 신뢰가는 어조로 작성해주세요.
 `;
 
-try {
-  const completion = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo",
-    messages: [{ role: "user", content: prompt }],
-    max_tokens: 1000,
-  });
+  try {
+    const response = await fetch("/api/skinReport", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        skinType,
+        sensitive,
+        trouble,
+        barrier,
+        routineSummary,
+        choiceSummary,
+        productSummary,
+      }),
+    });
 
-  res.status(200).json({ result: completion.choices[0].message.content });
+    if (!response.ok) {
+      throw new Error("AI 서버 응답 실패");
+    }
 
-} catch (error) {
-  console.error("OpenAI 호출 실패:", error);
-  res.status(500).json({ error: "GPT 호출 실패", detail: error.message });
-}
+    const data = await response.json();
+
+    // 결과 표시
+    document.getElementById("ai-result").textContent =
+      data.result || "AI 결과를 불러오지 못했어요.";
+
+  } catch (err) {
+    console.error("에러 발생:", err);
+    document.getElementById("ai-result").textContent =
+      "AI 분석을 불러오는 데 실패했습니다.";
+  }
+});
