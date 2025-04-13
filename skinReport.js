@@ -5,15 +5,7 @@ export default async function handler(req, res) {
     apiKey: process.env.OPENAI_API_KEY,
   });
 
-  const {
-    skinType,
-    sensitive,
-    trouble,
-    barrier,
-    routineSummary,
-    choiceSummary,
-    productSummary
-  } = req.body;
+const { skinType, sensitive, trouble, barrier, routineSummary, choiceSummary, productSummary } = req.body;
 
   const prompt = `
 당신은 피부 전문가입니다.  
