@@ -286,35 +286,39 @@ label input[type="radio"] {
 
 .tooltip-wrapper {
   position: relative;
+  display: inline-block;
 }
 
 .tooltip-button {
-  background-color: #d4dce8;
-  color: #2c3e50;
+  background-color: #4c7cc7;
+  color: white;
   border: none;
   border-radius: 50%;
-  width: 22px;
-  height: 22px;
-  font-size: 0.85rem;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
   cursor: pointer;
+  text-align: center;
   padding: 0;
-  line-height: 22px;
+  margin-left: 8px;
 }
 
 .tooltip-box {
-  display: none;
   position: absolute;
-  top: 30px;  /* 버튼 아래 */
+  top: 130%; /* 버튼 아래로 약간 여백 */
   left: 50%;
   transform: translateX(-50%);
-  background-color: #f3f6fb;
+  background-color: #ffffff;
   color: #333;
-  font-size: 0.85rem;
-  padding: 8px 12px;
-  border: 1px solid #c0cde0;
-  border-radius: 6px;
-  max-width: 320px;
-  white-space: pre-wrap;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px 12px;
+  width: max-content;
+  max-width: 300px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 10;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  display: none;
+  white-space: normal;
 }
