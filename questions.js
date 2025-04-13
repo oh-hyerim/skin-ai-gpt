@@ -49,31 +49,39 @@ questions.forEach(({ text, tooltip }, i) => {
   const qNum = i + 1;
   const fieldset = document.createElement("fieldset");
 
-  const legend = document.createElement("legend");
-  legend.textContent = `${qNum}. ${text}`;
+const legend = document.createElement("legend");
 
-  if (tooltip) {
-    const tipButton = document.createElement("button");
-    tipButton.textContent = "?";
-    tipButton.type = "button";
-    tipButton.className = "tooltip-button";
+const questionText = document.createElement("span");
+questionText.textContent = `${qNum}. ${text}`;
 
-    const tooltipBox = document.createElement("div");
-    tooltipBox.className = "tooltip-box";
-    tooltipBox.textContent = tooltip;
-    tooltipBox.style.display = "none";
+legend.style.display = "flex";
+legend.style.justifyContent = "space-between";
+legend.style.alignItems = "center";
 
-    tipButton.addEventListener("click", () => {
-      tooltipBox.style.display = tooltipBox.style.display === "none" ? "block" : "none";
-    });
+legend.appendChild(questionText);
 
-    const wrapper = document.createElement("span");
-    wrapper.style.marginLeft = "8px";
-    wrapper.appendChild(tipButton);
-    wrapper.appendChild(tooltipBox);
+if (tooltip) {
+  const wrapper = document.createElement("span");
+  wrapper.className = "tooltip-wrapper";
 
-    legend.appendChild(wrapper);
-  }
+  const tipButton = document.createElement("button");
+  tipButton.textContent = "?";
+  tipButton.type = "button";
+  tipButton.className = "tooltip-button";
+
+  const tooltipBox = document.createElement("div");
+  tooltipBox.className = "tooltip-box";
+  tooltipBox.textContent = tooltip;
+  tooltipBox.style.display = "none";
+
+  tipButton.addEventListener("click", () => {
+    tooltipBox.style.display = tooltipBox.style.display === "none" ? "block" : "none";
+  });
+
+  wrapper.appendChild(tipButton);
+  wrapper.appendChild(tooltipBox);
+  legend.appendChild(wrapper);
+}
 
   fieldset.appendChild(legend);
 
