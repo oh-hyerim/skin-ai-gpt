@@ -39,13 +39,9 @@ try {
     max_tokens: 1000,
   });
 
-  // 응답이 어떤 형식으로 오는지 확인
-  console.log("GPT 응답:", completion);
-
-  // 사용자에게 결과 전달
   res.status(200).json({ result: completion.choices[0].message.content });
 
 } catch (error) {
   console.error("OpenAI 호출 실패:", error);
-  res.status(500).json({ error: "GPT 호출 실패" });
+  res.status(500).json({ error: "GPT 호출 실패", detail: error.message });
 }
