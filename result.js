@@ -11,7 +11,15 @@ window.addEventListener("DOMContentLoaded", async () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ skinType, sensitive, trouble, barrier }),
+      body: JSON.stringify({
+  skinType,
+  sensitive,
+  trouble,
+  barrier,
+  routineSummary,    // 문자열로 미리 요약해서 넣기
+  choiceSummary,     // 문자열로 미리 요약해서 넣기
+  productSummary     // 문자열로 미리 요약해서 넣기
+}),
     });
 
     const data = await response.json();
