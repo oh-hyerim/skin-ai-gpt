@@ -27,9 +27,4 @@ if (imageInput && imageBox && uploadBox) {
 
     this.value = '';
   });
-}   hidden.type = "hidden";
-    hidden.name = key;
-    hidden.value = value;
-    form.appendChild(hidden);
-  }
-});
+}
