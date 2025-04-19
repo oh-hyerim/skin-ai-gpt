@@ -1,3 +1,4 @@
+window.addEventListener("DOMContentLoaded", () => {
 const products = [
   { label: "스킨 / 토너", name: "toner" },
   { label: "에센스 / 세럼", name: "essence" },
@@ -63,4 +64,5 @@ products.forEach(({ label, name }) => {
   wrapper.appendChild(addBtn);
   group.appendChild(wrapper);
   container.appendChild(group);
+});
 });
