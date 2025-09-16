@@ -11,6 +11,9 @@ export default function OAuthCallbackPage() {
 
   useEffect(() => {
     const supabase = getSupabase()
+    const url = typeof window !== 'undefined' ? new URL(window.location.href) : null
+    const rawNext = url?.searchParams.get('next') || '/index.html'
+    const nextParam = rawNext.startsWith('/') ? rawNext : '/index.html'
 
     const checkSession = async () => {
       // 1) If implicit hash tokens are present, set session directly
@@ -23,7 +26,7 @@ export default function OAuthCallbackPage() {
           try {
             await supabase.auth.setSession({ access_token, refresh_token })
             window.history.replaceState({}, '', window.location.pathname)
-            router.replace('/mypage')
+            router.replace(nextParam)
             return
           } catch (_e) {
             // fallthrough to next steps
@@ -39,11 +42,11 @@ export default function OAuthCallbackPage() {
       }
 
       const { data } = await supabase.auth.getSession()
-      if (data.session) router.replace('/mypage')
+      if (data.session) router.replace(nextParam)
     }
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) router.replace('/mypage')
+      if (session) router.replace(nextParam)
     })
 
     // Fallback in case the event fired before subscription

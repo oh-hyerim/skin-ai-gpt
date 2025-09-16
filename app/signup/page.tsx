@@ -25,14 +25,20 @@ export default function SignupPage() {
       setError(error.message)
       return
     }
-    router.push('/')
+    router.push('/index.html')
   }
 
   const handleGoogle = async () => {
     setError(null)
     setGoogleLoading(true)
     const supabase = getSupabase()
-    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' })
+    const redirectTo = typeof window !== 'undefined'
+      ? `${window.location.origin}/auth/callback?next=${encodeURIComponent('/index.html')}`
+      : undefined
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo }
+    })
     if (error) {
       console.error('Google OAuth error:', error)
       setGoogleLoading(false)
