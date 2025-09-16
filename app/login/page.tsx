@@ -25,7 +25,7 @@ export default function LoginPage() {
       setError(error.message)
       return
     }
-    router.push('/index.html')
+    router.push('/')
   }
 
   const handleGoogle = async () => {
@@ -33,7 +33,7 @@ export default function LoginPage() {
     setGoogleLoading(true)
     const supabase = getSupabase()
     const redirectTo = typeof window !== 'undefined'
-      ? `${window.location.origin}/auth/callback?next=${encodeURIComponent('/index.html')}`
+      ? `${window.location.origin}/auth/callback?next=${encodeURIComponent('/')}`
       : undefined
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import { getSupabase } from '../../../lib/supabaseClient'
 
@@ -12,8 +13,9 @@ export default function OAuthCallbackPage() {
   useEffect(() => {
     const supabase = getSupabase()
     const url = typeof window !== 'undefined' ? new URL(window.location.href) : null
-    const rawNext = url?.searchParams.get('next') || '/index.html'
-    const nextParam = rawNext.startsWith('/') ? rawNext : '/index.html'
+    const rawNext = url?.searchParams.get('next') || '/'
+    // Allow only known app routes to satisfy typedRoutes: '/' or '/mypage'
+    const nextParam: Route = (rawNext === '/mypage' ? '/mypage' : '/') as Route
 
     const checkSession = async () => {
       // 1) If implicit hash tokens are present, set session directly
