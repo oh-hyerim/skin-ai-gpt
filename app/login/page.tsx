@@ -32,8 +32,9 @@ export default function LoginPage() {
     setError(null)
     setGoogleLoading(true)
     const supabase = getSupabase()
-    const redirectTo = typeof window !== 'undefined'
-      ? `${window.location.origin}/auth/callback?next=${encodeURIComponent('/')}`
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (typeof window !== 'undefined' ? window.location.origin : '')
+    const redirectTo = baseUrl
+      ? `${baseUrl}/auth/callback?next=${encodeURIComponent('/')}`
       : undefined
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
