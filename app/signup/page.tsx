@@ -32,10 +32,8 @@ export default function SignupPage() {
     setError(null)
     setGoogleLoading(true)
     const supabase = getSupabase()
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (typeof window !== 'undefined' ? window.location.origin : '')
-    const redirectTo = baseUrl
-      ? `${baseUrl}/auth/callback?next=${encodeURIComponent('/')}`
-      : undefined
+    const base = typeof window !== 'undefined' ? window.location.origin : 'https://skin-ai-gpt.vercel.app'
+    const redirectTo = `${base}/auth/callback`
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo }

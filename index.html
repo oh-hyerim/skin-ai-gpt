@@ -195,7 +195,7 @@
         <button class="settings-item">서비스 소개</button>
 
         <div class="settings-sep"></div>
-        <button class="settings-item">로그아웃</button>
+        <button id="logoutBtn" class="settings-item" style="display:none">로그아웃</button>
         <button class="settings-item">닉네임 변경</button>
         <button class="settings-item">비밀번호 변경</button>
         <button class="settings-item">회원탈퇴</button>
@@ -286,6 +286,40 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+        const url = window.NEXT_PUBLIC_SUPABASE_URL || "{{VERCEL_INJECTED_URL}}";
+        const key = window.NEXT_PUBLIC_SUPABASE_ANON_KEY || "{{VERCEL_INJECTED_KEY}}";
+        if (!url || !key) {
+            console.warn('Supabase env missing for static UI auth.');
+        }
+        const supabase = (url && key) ? createClient(url, key) : null;
+
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        async function refreshUI() {
+            if (!supabase) return;
+            const { data: { session } } = await supabase.auth.getSession();
+            const loggedIn = !!session;
+            if (loginBtn)  loginBtn.style.display  = loggedIn ? 'none' : '';
+            if (logoutBtn) logoutBtn.style.display = loggedIn ? '' : 'none';
+        }
+
+        if (supabase) {
+            supabase.auth.onAuthStateChange(() => { refreshUI(); });
+            refreshUI();
+        }
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async () => {
+                if (supabase) {
+                    await supabase.auth.signOut();
+                    await refreshUI();
+                }
+            });
+        }
+    </script>
     <script src="index.js"></script>
 </body>
 </html>
