@@ -174,9 +174,9 @@
     <!-- 설정 뷰 -->
     <div id="settingsView" class="settings-view hidden">
         <div class="settings-login-card">
-            <span id="settingsEmail" class="muted"></span>
             <button class="btn-outline">로그인</button>
             <button class="btn-outline">회원가입</button>
+            <div id="settingsEmail" class="settings-email" style="display:none"></div>
         </div>
         <div class="settings-sep"></div>
         <button class="settings-item">알림 설정(푸쉬)</button>
@@ -287,40 +287,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-    <script type="module">
-        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-        const url = window.NEXT_PUBLIC_SUPABASE_URL || "{{VERCEL_INJECTED_URL}}";
-        const key = window.NEXT_PUBLIC_SUPABASE_ANON_KEY || "{{VERCEL_INJECTED_KEY}}";
-        if (!url || !key) {
-            console.warn('Supabase env missing for static UI auth.');
-        }
-        const supabase = (url && key) ? createClient(url, key) : null;
-
-        const loginBtn = document.getElementById('loginBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-
-        async function refreshUI() {
-            if (!supabase) return;
-            const { data: { session } } = await supabase.auth.getSession();
-            const loggedIn = !!session;
-            if (loginBtn)  loginBtn.style.display  = loggedIn ? 'none' : '';
-            if (logoutBtn) logoutBtn.style.display = loggedIn ? '' : 'none';
-        }
-
-        if (supabase) {
-            supabase.auth.onAuthStateChange(() => { refreshUI(); });
-            refreshUI();
-        }
-
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', async () => {
-                if (supabase) {
-                    await supabase.auth.signOut();
-                    await refreshUI();
-                }
-            });
-        }
-    </script>
+    
     <script src="index.js"></script>
 </body>
 </html>

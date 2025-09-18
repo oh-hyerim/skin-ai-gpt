@@ -44,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginView = document.getElementById('loginView');
     const loginClose = document.getElementById('loginClose');
     const loginFrame = document.getElementById('loginFrame');
-    const settingsEmail = document.getElementById('settingsEmail');
 
     // ---- Supabase 세션 유틸 (로컬스토리지 기반) ----
     function readSupabaseSession(){
@@ -131,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const btns = card.querySelectorAll('button');
         const loginBtnEl = btns[0];
         const signupBtnEl = btns[1];
+		const settingsEmailEl = document.getElementById('settingsEmail');
         if (!loginBtnEl || !signupBtnEl) return;
         // 기존 리스너 제거 (onclick으로 대체)
         loginBtnEl.replaceWith(loginBtnEl.cloneNode(true));
@@ -139,16 +139,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const signupBtnNew = card.querySelectorAll('button')[1];
         const entry = readSupabaseSession();
         const isLoggedIn = !!(entry && entry.session && entry.session.user);
+		const email = isLoggedIn ? (entry.session.user.email || '') : '';
         if (isLoggedIn) {
-            // 로그인 상태: 두 버튼 모두 숨김 (요구사항)
-            signupBtnNew.style.display = 'none';
-            loginBtnNew.style.display = 'none';
+			// 로그인 상태: 로그인/회원가입 버튼 숨김, 이메일 표시
+			signupBtnNew.style.display = 'none';
+			loginBtnNew.style.display = 'none';
+			if (settingsEmailEl) {
+				settingsEmailEl.textContent = email;
+				settingsEmailEl.style.display = '';
+			}
         } else {
             // 비로그인: 버튼 정상 표시 및 동작 바인딩
             signupBtnNew.style.display = '';
-            loginBtnNew.textContent = '로그인';
+			loginBtnNew.style.display = '';
+			loginBtnNew.textContent = '로그인';
             loginBtnNew.addEventListener('click', () => openLoginOverlay('/login'));
             signupBtnNew.addEventListener('click', () => openLoginOverlay('/signup'));
+			if (settingsEmailEl) {
+				settingsEmailEl.textContent = '';
+				settingsEmailEl.style.display = 'none';
+			}
         }
     }
 
@@ -157,7 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = entry && entry.session && entry.session.user && entry.session.user.email ? entry.session.user.email : '';
         const emailSpan = menuView && menuView.querySelector('.menu-bar span');
         if (emailSpan) emailSpan.textContent = email || '';
-        if (settingsEmail) settingsEmail.textContent = email || '';
     }
 
     function hookSettingsLogoutItem(){
@@ -182,6 +191,13 @@ document.addEventListener('DOMContentLoaded', () => {
         bindSettingsAuthButtons();
         hookSettingsLogoutItem();
         updateUserEmailUI();
+		// 설정 하단 로그아웃 항목 표시 토글
+		const entry = readSupabaseSession();
+		const isLoggedIn = !!(entry && entry.session && entry.session.user);
+		const logoutBtn = document.getElementById('logoutBtn');
+		if (logoutBtn) {
+			logoutBtn.style.display = isLoggedIn ? '' : 'none';
+		}
     }
 
     // Next.js 서버 베이스 URL 결정 및 필요 시 사용자 입력 받는 헬퍼
