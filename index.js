@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginView = document.getElementById('loginView');
     const loginClose = document.getElementById('loginClose');
     const loginFrame = document.getElementById('loginFrame');
+    const settingsEmail = document.getElementById('settingsEmail');
 
     // ---- Supabase 세션 유틸 (로컬스토리지 기반) ----
     function readSupabaseSession(){
@@ -139,13 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const entry = readSupabaseSession();
         const isLoggedIn = !!(entry && entry.session && entry.session.user);
         if (isLoggedIn) {
-            // 로그인 상태: 회원가입 버튼 숨김, 로그인 버튼 → 로그아웃
+            // 로그인 상태: 두 버튼 모두 숨김 (요구사항)
             signupBtnNew.style.display = 'none';
-            loginBtnNew.textContent = '로그아웃';
-            loginBtnNew.addEventListener('click', () => {
-                clearSupabaseSessions();
-                window.location.href = '/';
-            });
+            loginBtnNew.style.display = 'none';
         } else {
             // 비로그인: 버튼 정상 표시 및 동작 바인딩
             signupBtnNew.style.display = '';
@@ -160,6 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = entry && entry.session && entry.session.user && entry.session.user.email ? entry.session.user.email : '';
         const emailSpan = menuView && menuView.querySelector('.menu-bar span');
         if (emailSpan) emailSpan.textContent = email || '';
+        if (settingsEmail) settingsEmail.textContent = email || '';
     }
 
     function hookSettingsLogoutItem(){

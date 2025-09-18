@@ -43,6 +43,106 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginClose = document.getElementById('loginClose');
     const loginFrame = document.getElementById('loginFrame');
 
+    // ---- Supabase 세션 유틸 (로컬스토리지 기반) ----
+    function readSupabaseSession(){
+        try {
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (!k) continue;
+                if (/^sb-.*-auth-token$/.test(k)) {
+                    const raw = localStorage.getItem(k);
+                    if (!raw) continue;
+                    const parsed = JSON.parse(raw);
+                    const s = parsed && (parsed.currentSession || parsed.session || parsed);
+                    if (s && s.user && s.user.email) {
+                        return { storageKey: k, session: s };
+                    }
+                }
+            }
+        } catch (_) {}
+        return null;
+    }
+
+    function clearSupabaseSessions(){
+        try {
+            const keys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && /^sb-/.test(k)) keys.push(k);
+            }
+            keys.forEach(k => localStorage.removeItem(k));
+        } catch (_) {}
+    }
+
+    function openLoginOverlay(path){
+        const { base } = resolveNextBase();
+        loginFrame.src = base + (path || '/login');
+        app.classList.remove('analysis-mode');
+        pageView.classList.add('hidden');
+        shopView.classList.add('hidden');
+        analysisView.classList.add('hidden');
+        menuView.classList.add('hidden');
+        loginView.classList.remove('hidden');
+        loginView.classList.add('visible');
+    }
+
+    function bindLoginButton(){
+        const btn = document.getElementById('loginBtn');
+        if (!btn) return;
+        const clone = btn.cloneNode(true);
+        btn.parentNode.replaceChild(clone, btn);
+        const entry = readSupabaseSession();
+        const isLoggedIn = !!(entry && entry.session && entry.session.user);
+        clone.textContent = isLoggedIn ? '로그아웃' : '로그인';
+        if (isLoggedIn) {
+            clone.addEventListener('click', () => {
+                clearSupabaseSessions();
+                window.location.href = '/';
+            });
+        } else {
+            clone.addEventListener('click', () => openLoginOverlay('/login'));
+        }
+    }
+
+    function bindSettingsAuthButtons(){
+        const card = document.querySelector('.settings-login-card');
+        if (!card) return;
+        const btns = card.querySelectorAll('button');
+        const loginBtnEl = btns[0];
+        const signupBtnEl = btns[1];
+        if (!loginBtnEl || !signupBtnEl) return;
+        loginBtnEl.replaceWith(loginBtnEl.cloneNode(true));
+        signupBtnEl.replaceWith(signupBtnEl.cloneNode(true));
+        const entry = readSupabaseSession();
+        const isLoggedIn = !!(entry && entry.session && entry.session.user);
+        const [loginBtnNew, signupBtnNew] = card.querySelectorAll('button');
+        if (isLoggedIn) {
+            // 로그인 상태: 두 버튼 모두 숨김 (요구사항)
+            signupBtnNew.style.display = 'none';
+            loginBtnNew.style.display = 'none';
+        } else {
+            signupBtnNew.style.display = '';
+            loginBtnNew.textContent = '로그인';
+            loginBtnNew.addEventListener('click', () => openLoginOverlay('/login'));
+            signupBtnNew.addEventListener('click', () => openLoginOverlay('/signup'));
+        }
+    }
+
+    function updateUserEmailUI(){
+        const entry = readSupabaseSession();
+        const email = entry && entry.session && entry.session.user && entry.session.user.email ? entry.session.user.email : '';
+        const emailSpan = menuView && menuView.querySelector('.menu-bar span');
+        if (emailSpan) emailSpan.textContent = email || '';
+        const settingsEmail = document.getElementById('settingsEmail');
+        if (settingsEmail) settingsEmail.textContent = email || '';
+    }
+
+    function updateAuthUI(){
+        bindLoginButton();
+        bindSettingsAuthButtons();
+        updateUserEmailUI();
+    }
+
     function resolveNextBase() {
         const isFile = window.location.protocol === 'file:';
         const metaEl = document.querySelector('meta[name="next-base-url"]');
@@ -59,13 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = base + destPath;
     }
 
-    // 메뉴 화면 상단 로그인 버튼 → /login 경로로 이동
-    if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            const { base } = resolveNextBase();
-            window.location.href = base + '/login';
-        });
-    }
+    // 로그인 UI 초기화/토글
+    updateAuthUI();
 
     if (loginClose && loginView) {
         loginClose.addEventListener('click', () => {
@@ -73,8 +168,17 @@ document.addEventListener('DOMContentLoaded', () => {
             loginView.classList.add('hidden');
             loginFrame.src = '';
             pageView.classList.remove('hidden');
+            // 오버레이 닫힐 때 세션 상태 반영
+            updateAuthUI();
         });
     }
+
+    // 다른 탭/iframe에서 세션 변경 시 UI 동기화
+    window.addEventListener('storage', (e)=>{
+        if (e && e.key && /^sb-.*-auth-token$/.test(e.key)) {
+            updateAuthUI();
+        }
+    });
 
     // 설정 화면 로그인/회원가입 버튼 연결
     const settingsLoginCard = document.querySelector('.settings-login-card');
