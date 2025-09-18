@@ -87,6 +87,22 @@ document.addEventListener('DOMContentLoaded', () => {
         menuView.classList.add('hidden');
         loginView.classList.remove('hidden');
         loginView.classList.add('visible');
+        // iframe 로드 후 자동완성 보정 시도 (동일 출처일 때만)
+        const fix = () => {
+            try {
+                const doc = loginFrame.contentDocument || loginFrame.contentWindow.document;
+                if (!doc) return;
+                const email = doc.querySelector('input[type="email"], input[name*="email" i]');
+                const user = doc.querySelector('input[name="username" i]');
+                const pass = doc.querySelector('input[type="password"], input[name*="password" i]');
+                if (email) email.setAttribute('autocomplete','email');
+                if (user) user.setAttribute('autocomplete','username');
+                if (pass) pass.setAttribute('autocomplete','current-password');
+            } catch (_) {
+                // 교차 출처면 접근 불가 → 무시
+            }
+        };
+        loginFrame.addEventListener('load', fix, { once: true });
     }
 
     function bindLoginButton(){
@@ -663,7 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function createInputCard(){
         const wrap=document.createElement('div');
         wrap.className='product-input';
-        wrap.innerHTML=`<label class="img-btn" title="이미지 추가">＋<input type="file" accept="image/*" style="display:none"></label><div class="fields"><input placeholder="브랜드"/><input placeholder="제품명"/></div><button class="save">저장</button>`;
+        wrap.innerHTML=`<label class="img-btn" title="이미지 추가">＋<input type="file" accept="image/*" style="display:none"></label><div class="fields"><input placeholder="브랜드" autocomplete="off"/><input placeholder="제품명" autocomplete="off"/></div><button class="save">저장</button>`;
         const fileInput=wrap.querySelector('input[type="file"]');
         const brandI=wrap.querySelector('.fields input:nth-child(1)');
         const nameI=wrap.querySelector('.fields input:nth-child(2)');
