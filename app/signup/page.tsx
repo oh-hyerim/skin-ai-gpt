@@ -54,6 +54,7 @@ export default function SignupPage() {
             type="email"
             id="signup-email"
             name="email"
+            autoComplete="email"
             placeholder="이메일"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -65,6 +66,7 @@ export default function SignupPage() {
             type="password"
             id="signup-password"
             name="password"
+            autoComplete="new-password"
             placeholder="비밀번호"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

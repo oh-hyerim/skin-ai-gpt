@@ -24,6 +24,7 @@ export default function Login() {
       <input
         type="email"
         placeholder="이메일"
+        autoComplete="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         className="border p-2 mb-2 w-full"
@@ -31,6 +32,7 @@ export default function Login() {
       <input
         type="password"
         placeholder="비밀번호"
+        autoComplete="current-password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         className="border p-2 mb-2 w-full"
