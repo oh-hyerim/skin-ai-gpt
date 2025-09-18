@@ -77,6 +77,17 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (_) {}
     }
 
+	// 인증 정보 보조 저장소 (교차 출처일 때 세션 키 공유 불가 대비)
+	function getBackupEmail(){
+		try { return localStorage.getItem('authEmail') || ''; } catch(_) { return ''; }
+	}
+	function setBackupEmail(email){
+		try { if (email) localStorage.setItem('authEmail', String(email)); } catch(_) {}
+	}
+	function clearBackupEmail(){
+		try { localStorage.removeItem('authEmail'); } catch(_) {}
+	}
+
     function openLoginOverlay(path){
         const { base } = resolveNextBase();
         loginFrame.src = base + (path || '/login');
@@ -112,11 +123,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const clone = btn.cloneNode(true);
         btn.parentNode.replaceChild(clone, btn);
         const entry = readSupabaseSession();
-        const isLoggedIn = !!(entry && entry.session && entry.session.user);
+		const backupEmail = getBackupEmail();
+		const isLoggedIn = !!(entry && entry.session && entry.session.user) || !!backupEmail;
         clone.textContent = isLoggedIn ? '로그아웃' : '로그인';
         if (isLoggedIn) {
             clone.addEventListener('click', () => {
                 clearSupabaseSessions();
+				clearBackupEmail();
                 window.location.href = '/';
             });
         } else {
@@ -124,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function bindSettingsAuthButtons(){
+	function bindSettingsAuthButtons(){
         const card = document.querySelector('.settings-login-card');
         if (!card) return;
         const btns = card.querySelectorAll('button');
@@ -138,8 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const loginBtnNew = card.querySelectorAll('button')[0];
         const signupBtnNew = card.querySelectorAll('button')[1];
         const entry = readSupabaseSession();
-        const isLoggedIn = !!(entry && entry.session && entry.session.user);
-		const email = isLoggedIn ? (entry.session.user.email || '') : '';
+		const backupEmail = getBackupEmail();
+		const hasSession = !!(entry && entry.session && entry.session.user);
+		const isLoggedIn = hasSession || !!backupEmail;
+		const email = hasSession ? (entry.session.user.email || '') : (backupEmail || '');
         if (isLoggedIn) {
 			// 로그인 상태: 로그인/회원가입 버튼 숨김, 이메일 표시
 			signupBtnNew.style.display = 'none';
@@ -164,7 +179,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateUserEmailUI(){
         const entry = readSupabaseSession();
-        const email = entry && entry.session && entry.session.user && entry.session.user.email ? entry.session.user.email : '';
+		let email = entry && entry.session && entry.session.user && entry.session.user.email ? entry.session.user.email : '';
+		if (!email) { email = getBackupEmail(); }
         const emailSpan = menuView && menuView.querySelector('.menu-bar span');
         if (emailSpan) emailSpan.textContent = email || '';
     }
@@ -180,6 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.parentNode.replaceChild(clone, btn);
                 clone.addEventListener('click', () => {
                     clearSupabaseSessions();
+					clearBackupEmail();
                     window.location.href = '/';
                 });
             }
@@ -219,6 +236,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 로그인 버튼/세션 기반 UI 초기 바인딩
     updateAuthUI();
+
+	// iframe(Next.js)에서 로그인 완료 브로드캐스트 수신 → 즉시 UI 동기화
+	window.addEventListener('message', (e) => {
+		try {
+			const msg = e && e.data;
+			if (!msg || msg.source !== 'skin-app') return;
+			if (msg.type === 'auth:login') {
+				if (msg.email) setBackupEmail(msg.email);
+				// 오버레이 닫고 메인 복귀
+				if (loginView) {
+					loginView.classList.remove('visible');
+					loginView.classList.add('hidden');
+					if (loginFrame) loginFrame.src = '';
+					pageView.classList.remove('hidden');
+				}
+				updateAuthUI();
+			}
+			if (msg.type === 'auth:logout') {
+				clearBackupEmail();
+				updateAuthUI();
+			}
+		} catch(_) {}
+	});
 
     if (loginClose && loginView) {
         loginClose.addEventListener('click', () => {

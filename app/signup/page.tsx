@@ -25,6 +25,13 @@ export default function SignupPage() {
       setError(error.message)
       return
     }
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const em = session?.user?.email || email
+      if (typeof window !== 'undefined' && window.parent) {
+        window.parent.postMessage({ source: 'skin-app', type: 'auth:login', email: em }, '*')
+      }
+    } catch (_) {}
     router.push('/')
   }
 
