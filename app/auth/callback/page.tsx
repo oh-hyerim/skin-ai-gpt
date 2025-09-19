@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getSupabase } from "../../../lib/supabaseClient";
+import { supabase } from "../../../lib/supabaseClient";
 
 export default function AuthCallback() {
   const router = useRouter();
@@ -10,7 +10,6 @@ export default function AuthCallback() {
   useEffect(() => {
     const run = async () => {
       try {
-        const supabase = getSupabase();
         // 해시/코드가 있으면 supabase-js가 이 호출 시 세션 저장 처리
         await supabase.auth.getSession();
       } catch (e) {

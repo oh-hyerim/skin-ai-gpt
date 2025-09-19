@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getSupabase } from '../../lib/supabaseClient'
+import { supabase } from '../../lib/supabaseClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,7 +17,6 @@ export default function SignupPage() {
   const handleSignup = async () => {
     setError(null)
     setLoading(true)
-    const supabase = getSupabase()
     const { error } = await supabase.auth.signUp({ email, password })
     setLoading(false)
     if (error) {
@@ -38,9 +37,7 @@ export default function SignupPage() {
   const handleGoogle = async () => {
     setError(null)
     setGoogleLoading(true)
-    const supabase = getSupabase()
-    const base = typeof window !== 'undefined' ? window.location.origin : 'https://skin-ai-gpt.vercel.app'
-    const redirectTo = `${base}/auth/callback`
+    const redirectTo = window.location.origin + '/'
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo }
@@ -86,14 +83,16 @@ export default function SignupPage() {
         )}
 
         <button
+          type="button"
           onClick={handleSignup}
-          disabled={loading}
+          disabled={loading || email.trim() === '' || password.trim() === ''}
           className="mb-2 w-full rounded bg-blue-600 p-2 text-white hover:bg-blue-700 disabled:opacity-50"
         >
           {loading ? '가입 중...' : '이메일로 회원가입'}
         </button>
 
         <button
+          type="button"
           onClick={handleGoogle}
           disabled={googleLoading}
           className="w-full rounded border border-gray-300 bg-white p-2 hover:bg-gray-50"

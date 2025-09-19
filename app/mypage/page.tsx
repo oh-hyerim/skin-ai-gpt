@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getSupabase } from '../../lib/supabaseClient'
+import { supabase } from '../../lib/supabaseClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,7 +13,6 @@ export default function MyPage() {
 
   useEffect(() => {
     const init = async () => {
-      const supabase = getSupabase()
       const { data: sessionData } = await supabase.auth.getSession()
       const user = sessionData?.session?.user || null
       if (!user) {
@@ -27,7 +26,6 @@ export default function MyPage() {
   }, [router])
 
   const handleLogout = async () => {
-    const supabase = getSupabase()
     await supabase.auth.signOut()
     router.replace('/login')
   }
