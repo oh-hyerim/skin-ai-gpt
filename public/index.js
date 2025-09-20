@@ -251,20 +251,22 @@ onReady(() => {
     // 로그인 버튼/세션 기반 UI 초기 바인딩
     updateAuthUI();
 
-	// iframe(Next.js)에서 로그인 완료 브로드캐스트 수신 → 즉시 UI 동기화
-	window.addEventListener('message', (e) => {
+    // iframe(Next.js)에서 로그인 완료 브로드캐스트 수신 → 즉시 UI 동기화
+    window.addEventListener('message', (e) => {
 		try {
 			const msg = e && e.data;
 			if (!msg || msg.source !== 'skin-app') return;
 			if (msg.type === 'auth:login') {
 				if (msg.email) setBackupEmail(msg.email);
-				// 오버레이 닫고 배경 화면(pageView)으로 복귀
+                // 오버레이 닫고 배경(pageView)으로 복귀
 				if (loginView) {
 					loginView.classList.remove('visible');
 					loginView.classList.add('hidden');
 					if (loginFrame) loginFrame.src = '';
-					if (pageView) pageView.classList.remove('hidden');
-					if (menuView) menuView.classList.add('hidden');
+                    if (pageView) pageView.classList.remove('hidden');
+                    if (analysisView) analysisView.classList.add('hidden');
+                    if (shopView) shopView.classList.add('hidden');
+                    if (menuView) menuView.classList.add('hidden');
 				}
 				updateAuthUI();
 			}
@@ -279,10 +281,9 @@ onReady(() => {
         loginClose.addEventListener('click', () => {
             loginView.classList.remove('visible');
             loginView.classList.add('hidden');
-            if (loginFrame) loginFrame.src = '';
-            // 배경 화면으로 복귀
-            if (pageView) pageView.classList.remove('hidden');
-            if (menuView) menuView.classList.add('hidden');
+            loginFrame.src = '';
+            // 기본 배경 복귀: 메인 페이지 뷰 표시
+            pageView.classList.remove('hidden');
             // 오버레이 닫힐 때 세션 상태 반영
             updateAuthUI();
         });
@@ -1578,14 +1579,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    addPageBtn.addEventListener('click', () => {
+    if (addPageBtn) addPageBtn.addEventListener('click', () => {
         const pageDiv = createPage(PAGES.length + 1);
         PAGES.push(pageDiv);
         currentPageIdx = PAGES.length - 1;
         refreshPage();
     });
 
-    deletePageBtn.addEventListener('click', () => {
+    if (deletePageBtn) deletePageBtn.addEventListener('click', () => {
         if (PAGES.length === 1) return; // safeguard
         PAGES.pop();
         pagesWrapper.removeChild(pagesWrapper.lastChild);
@@ -1597,10 +1598,10 @@ document.addEventListener('DOMContentLoaded', () => {
     /* -------- Swipe navigation -------- */
     let startX;
     let isMouseDown = false;
-    pagesWrapper.addEventListener('touchstart', e => {
+    if (pagesWrapper) pagesWrapper.addEventListener('touchstart', e => {
         startX = e.touches[0].clientX;
     });
-    pagesWrapper.addEventListener('touchend', e => {
+    if (pagesWrapper) pagesWrapper.addEventListener('touchend', e => {
         const diff = e.changedTouches[0].clientX - startX;
         if (Math.abs(diff) < 50) return;
         if (diff < 0 && currentPageIdx < PAGES.length - 1) currentPageIdx++;
@@ -1609,7 +1610,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // PC 마우스 스와이프
-    pagesWrapper.addEventListener('mousedown', e => {
+    if (pagesWrapper) pagesWrapper.addEventListener('mousedown', e => {
         isMouseDown = true;
         startX = e.clientX;
     });
