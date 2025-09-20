@@ -300,7 +300,8 @@ onReady(() => {
         const pageDiv = document.createElement('div');
         pageDiv.className = 'page';
         pageDiv.textContent = num;
-        pagesWrapper.appendChild(pageDiv);
+        const wrapper = document.getElementById('pagesWrapper');
+        if (wrapper) wrapper.appendChild(pageDiv);
         return pageDiv;
     }
 
@@ -315,20 +316,25 @@ onReady(() => {
     }
 
     function updateIndicators() {
-        pageIndicators.innerHTML = '';
+        const el = document.getElementById('pageIndicators');
+        if (!el) return;
+        el.innerHTML = '';
         PAGES.forEach((_, idx) => {
             const dot = document.createElement('div');
             dot.className = 'indicator-dot' + (idx === currentPageIdx ? ' active' : '');
-            pageIndicators.appendChild(dot);
+            el.appendChild(dot);
         });
     }
 
     function refreshPage() {
-        const offset = -currentPageIdx * pagesWrapper.offsetWidth;
-        pagesWrapper.style.transform = `translateX(${offset}px)`;
+        const wrapper = document.getElementById('pagesWrapper');
+        if (!wrapper) return;
+        const offset = -currentPageIdx * wrapper.offsetWidth;
+        wrapper.style.transform = `translateX(${offset}px)`;
         // 페이지 번호 재설정
         PAGES.forEach((pg, idx) => pg.textContent = idx + 1);
-        deletePageBtn.disabled = PAGES.length === 1;
+        const delBtn = document.getElementById('deletePageBtn');
+        if (delBtn) delBtn.disabled = PAGES.length === 1;
         updateIndicators();
         renderPageList();
         saveCount();
@@ -513,7 +519,7 @@ onReady(() => {
         if (e.target === editOverlay) closeEditOverlay();
     });
 
-    addPageBtn.addEventListener('click', () => {
+    if (addPageBtn) addPageBtn.addEventListener('click', () => {
         const pageDiv = createPage(PAGES.length + 1);
         PAGES.push(pageDiv);
         currentPageIdx = PAGES.length - 1;
@@ -521,10 +527,11 @@ onReady(() => {
         // 편집 창 유지
     });
 
-    deletePageBtn.addEventListener('click', () => {
+    if (deletePageBtn) deletePageBtn.addEventListener('click', () => {
         if (PAGES.length === 1) return; // safeguard
         PAGES.pop();
-        pagesWrapper.removeChild(pagesWrapper.lastChild);
+        const wrapper = document.getElementById('pagesWrapper');
+        if (wrapper && wrapper.lastChild) wrapper.removeChild(wrapper.lastChild);
         currentPageIdx = Math.max(0, currentPageIdx - 1);
         refreshPage();
         localStorage.setItem('pageCount', PAGES.length);
@@ -1510,12 +1517,16 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(pressTimer);
     }
 
-    mainDisplay.addEventListener('touchstart', startPressTimer);
-    mainDisplay.addEventListener('mousedown', startPressTimer);
+    if (mainDisplay) {
+        mainDisplay.addEventListener('touchstart', startPressTimer);
+        mainDisplay.addEventListener('mousedown', startPressTimer);
+    }
 
-    ['touchend', 'touchmove', 'mouseup', 'mouseleave'].forEach(evt => {
-        mainDisplay.addEventListener(evt, clearPressTimer);
-    });
+    if (mainDisplay) {
+        ['touchend', 'touchmove', 'mouseup', 'mouseleave'].forEach(evt => {
+            mainDisplay.addEventListener(evt, clearPressTimer);
+        });
+    }
 
     function openEditOverlay() {
         editOverlay.classList.remove('hidden');
