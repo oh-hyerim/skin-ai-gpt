@@ -1225,6 +1225,7 @@ onReady(() => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (window.__legacyInited1) return; window.__legacyInited1 = true;
     const skinTypeBtn = document.getElementById('skinTypeBtn');
     const skinCard = document.getElementById('skinCard');
     const closeCard = document.getElementById('closeCard');
@@ -1752,7 +1753,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function createInputCard(){
         const wrap=document.createElement('div');
         wrap.className='product-input';
-        wrap.innerHTML=`<label class="img-btn" title="이미지 추가">＋<input type="file" accept="image/*" style="display:none"></label><div class="fields"><input placeholder="브랜드"/><input placeholder="제품명"/></div><button class="save">저장</button>`;
+        wrap.innerHTML=`<label class="img-btn" title="이미지 추가">＋<input type="file" accept="image/*" style="display:none"></label><div class="fields"><input placeholder="브랜드" autocomplete="off"/><input placeholder="제품명" autocomplete="off"/></div><button class="save">저장</button>`;
         const fileInput=wrap.querySelector('input[type="file"]');
         const brandI=wrap.querySelector('.fields input:nth-child(1)');
         const nameI=wrap.querySelector('.fields input:nth-child(2)');
@@ -1786,6 +1787,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ------- 알람 리스트 저장/렌더/수정 로직 -------
 document.addEventListener('DOMContentLoaded', () => {
+  if (window.__legacyInited2) return; window.__legacyInited2 = true;
   const alarmView = document.getElementById('alarmView');
   const alarmFormView = document.getElementById('alarmFormView');
   const alarmList = document.getElementById('alarmList');

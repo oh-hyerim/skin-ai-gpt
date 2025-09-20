@@ -1,6 +1,6 @@
 import Script from "next/script"
-import TopBarAuthSwitch from "./_components/TopBarAuthSwitch"
 import RouteFade from "./_components/RouteFade"
+import AuthHeader from "../components/AuthHeader"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,7 +9,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="stylesheet" href="/index.css" />
       </head>
       <body className="min-h-screen bg-gray-50 text-gray-900">
-        <TopBarAuthSwitch />
+        <AuthHeader />
         <RouteFade>
           {children}
         </RouteFade>
