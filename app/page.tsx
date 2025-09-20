@@ -1,5 +1,6 @@
 "use client"
 
+import React from 'react'
 import { useEffect, useState } from 'react'
 import Script from 'next/script'
 
@@ -12,6 +13,7 @@ export default function HomePage() {
   if (!mounted) return null
 
   return (
+    <>
     <div className="app">
       {/* Skin Type Button */}
       <button id="skinTypeBtn" className="skin-type-btn">피부 타입</button>
@@ -283,6 +285,7 @@ export default function HomePage() {
       {/* 랜딩(홈)에서만 index.js 로드 */}
       <Script src="/index.js" strategy="afterInteractive" />
     </div>
+    </>
   )
 }
 
