@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../../lib/supabaseClient'
+import getSupabase from '../../lib/supabaseClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,6 +10,8 @@ export default function MyPage() {
   const router = useRouter()
   const [email, setEmail] = useState<string>('')
   const [loading, setLoading] = useState(true)
+
+  const supabase = getSupabase()
 
   useEffect(() => {
     const init = async () => {

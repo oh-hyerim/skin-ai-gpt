@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../../lib/supabaseClient'
+import getSupabase from '../../lib/supabaseClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,6 +13,8 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+
+  const supabase = getSupabase()
 
   const handleSignup = async () => {
     setError(null)
@@ -37,7 +39,7 @@ export default function SignupPage() {
   const handleGoogle = async () => {
     setError(null)
     setGoogleLoading(true)
-    const redirectTo = window.location.origin + '/'
+    const redirectTo = typeof window !== 'undefined' ? window.location.origin + '/' : 'https://skin-ai-gpt.vercel.app/'
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo }

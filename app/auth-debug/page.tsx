@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabaseClient";
+import getSupabase from "../../lib/supabaseClient";
 
 export default function AuthDebugPage() {
   const [event, setEvent] = useState<string>("init");
   const [sessionJson, setSessionJson] = useState<string>("null");
   const [userJson, setUserJson] = useState<string>("null");
   const [storageKeys, setStorageKeys] = useState<string[]>([]);
+
+  const supabase = getSupabase();
 
   const refresh = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -69,5 +71,6 @@ export default function AuthDebugPage() {
     </div>
   );
 }
+
 
 
