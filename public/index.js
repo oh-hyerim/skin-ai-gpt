@@ -258,12 +258,13 @@ onReady(() => {
 			if (!msg || msg.source !== 'skin-app') return;
 			if (msg.type === 'auth:login') {
 				if (msg.email) setBackupEmail(msg.email);
-				// 오버레이 닫고 메뉴 화면으로 복귀
+				// 오버레이 닫고 배경 화면(pageView)으로 복귀
 				if (loginView) {
 					loginView.classList.remove('visible');
 					loginView.classList.add('hidden');
 					if (loginFrame) loginFrame.src = '';
-					if (menuView) menuView.classList.remove('hidden');
+					if (pageView) pageView.classList.remove('hidden');
+					if (menuView) menuView.classList.add('hidden');
 				}
 				updateAuthUI();
 			}
@@ -278,9 +279,10 @@ onReady(() => {
         loginClose.addEventListener('click', () => {
             loginView.classList.remove('visible');
             loginView.classList.add('hidden');
-            loginFrame.src = '';
-            // 기본 배경 복귀: 메인 페이지 뷰 표시
-            pageView.classList.remove('hidden');
+            if (loginFrame) loginFrame.src = '';
+            // 배경 화면으로 복귀
+            if (pageView) pageView.classList.remove('hidden');
+            if (menuView) menuView.classList.add('hidden');
             // 오버레이 닫힐 때 세션 상태 반영
             updateAuthUI();
         });
@@ -526,9 +528,11 @@ onReady(() => {
         setTimeout(() => editOverlay.classList.add('hidden'), 300);
     }
 
-    editOverlay.addEventListener('click', e => {
-        if (e.target === editOverlay) closeEditOverlay();
-    });
+    if (editOverlay) {
+        editOverlay.addEventListener('click', e => {
+            if (e.target === editOverlay) closeEditOverlay();
+        });
+    }
 
     if (addPageBtn) addPageBtn.addEventListener('click', () => {
         const pageDiv = createPage(PAGES.length + 1);
