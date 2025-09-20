@@ -1,11 +1,12 @@
 // @ts-nocheck
 import { useState } from 'react'
-import { supabase } from './supabaseClient'
+import { getSupabase } from './lib/supabaseClient'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
+  const supabase = getSupabase()
 
   const handleLogin = async () => {
     const { data, error } = await supabase.auth.signInWithPassword({

@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+import { getSupabase } from "../lib/supabaseClient";
 
 export default function AuthHeader() {
   const [email, setEmail] = useState<string | null>(null);
+
+  const supabase = getSupabase();
 
   useEffect(() => {
     let isMounted = true;
@@ -58,5 +60,6 @@ export default function AuthHeader() {
     </header>
   );
 }
+
 
 

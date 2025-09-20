@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabaseClient'; // 당신의 export 경로에 맞춰 수정
+import { getSupabase } from './lib/supabaseClient';
 
 export default function AuthDebug() {
+  const supabase = getSupabase();
   const [sessionJSON, setSessionJSON] = useState<string>('(loading...)');
   const [userJSON, setUserJSON] = useState<string>('(loading...)');
   const [storageKeys, setStorageKeys] = useState<string[]>([]);
