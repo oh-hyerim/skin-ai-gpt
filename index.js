@@ -1,4 +1,9 @@
-document.addEventListener('DOMContentLoaded', () => {
+function onReady(fn){
+    if (document.readyState !== 'loading') { fn(); }
+    else { document.addEventListener('DOMContentLoaded', fn); }
+}
+
+onReady(() => {
     const skinTypeBtn = document.getElementById('skinTypeBtn');
     const skinCard = document.getElementById('skinCard');
     const closeCard = document.getElementById('closeCard');
@@ -763,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
 });
 
-document.addEventListener('DOMContentLoaded', () => {
+onReady(() => {
   const menuViewLocal = document.getElementById('menuView');
   menuViewLocal.addEventListener('click', e => {
     const c = e.target.closest('.circle-btn');
@@ -801,7 +806,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ------- 알람 리스트 저장/렌더/수정 로직 -------
-document.addEventListener('DOMContentLoaded', () => {
+onReady(() => {
   // DOM 참조
   const alarmView = document.getElementById('alarmView');
   const alarmFormView = document.getElementById('alarmFormView');
