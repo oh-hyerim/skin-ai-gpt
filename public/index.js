@@ -438,20 +438,22 @@ onReady(() => {
     const pageListEl = document.getElementById('pageList');
 
     function renderPageList() {
-        pageListEl.innerHTML = '';
+        const el = document.getElementById('pageList');
+        if (!el) return;
+        el.innerHTML = '';
         PAGES.forEach((_, idx) => {
             const li = document.createElement('li');
             li.textContent = `페이지 ${idx + 1}`;
             li.draggable = true;
             li.dataset.idx = idx;
-            pageListEl.appendChild(li);
+            el.appendChild(li);
         });
     }
 
     // ----- 드래그로 순서 변경 -----
     let dragSrcIdx = null;
 
-    pageListEl.addEventListener('dragstart', e => {
+    if (pageListEl) pageListEl.addEventListener('dragstart', e => {
         const li = e.target.closest('li');
         if (!li) return;
         dragSrcIdx = Number(li.dataset.idx);
@@ -459,11 +461,11 @@ onReady(() => {
         e.dataTransfer.setData('text/plain', dragSrcIdx);
     });
 
-    pageListEl.addEventListener('dragover', e => {
+    if (pageListEl) pageListEl.addEventListener('dragover', e => {
         e.preventDefault();
     });
 
-    pageListEl.addEventListener('drop', e => {
+    if (pageListEl) pageListEl.addEventListener('drop', e => {
         e.preventDefault();
         const li = e.target.closest('li');
         if (!li || dragSrcIdx === null) return;
@@ -475,8 +477,11 @@ onReady(() => {
         currentPageIdx = tgtIdx;
 
         // DOM 재배치
-        pagesWrapper.innerHTML = '';
-        PAGES.forEach(pg => pagesWrapper.appendChild(pg));
+        const wrapper = document.getElementById('pagesWrapper');
+        if (wrapper) {
+            wrapper.innerHTML = '';
+            PAGES.forEach(pg => wrapper.appendChild(pg));
+        }
         renderPageList(); // li 재생성하여 data-idx 갱신
         refreshPage();
         // 저장
@@ -540,10 +545,10 @@ onReady(() => {
     /* -------- Swipe navigation -------- */
     let startX;
     let isMouseDown = false;
-    pagesWrapper.addEventListener('touchstart', e => {
+    if (pagesWrapper) pagesWrapper.addEventListener('touchstart', e => {
         startX = e.touches[0].clientX;
     });
-    pagesWrapper.addEventListener('touchend', e => {
+    if (pagesWrapper) pagesWrapper.addEventListener('touchend', e => {
         const diff = e.changedTouches[0].clientX - startX;
         if (Math.abs(diff) < 50) return;
         if (diff < 0 && currentPageIdx < PAGES.length - 1) currentPageIdx++;
@@ -552,7 +557,7 @@ onReady(() => {
     });
 
     // PC 마우스 스와이프
-    pagesWrapper.addEventListener('mousedown', e => {
+    if (pagesWrapper) pagesWrapper.addEventListener('mousedown', e => {
         isMouseDown = true;
         startX = e.clientX;
     });
