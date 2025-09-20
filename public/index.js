@@ -543,7 +543,7 @@ onReady(() => {
     };
 
     const recordChart = document.getElementById('recordChart');
-    const ctx = recordChart ? recordChart.getContext('2d') : null;
+    const ctx = recordChart && recordChart.getContext ? recordChart.getContext('2d') : null;
 
     // 캔버스를 컨테이너 폭에 맞춰 고해상도로 리사이즈
     function resizeRecordCanvas(){
@@ -603,13 +603,15 @@ onReady(() => {
             }
             prevMonth = m;
         }
-        // 균등 간격 배치를 위해 span으로 구성
-        recordDates.innerHTML = '';
-        labels.forEach(text => {
-            const s = document.createElement('span');
-            s.textContent = text;
-            recordDates.appendChild(s);
-        });
+        // 균등 간격 배치를 위해 span으로 구성 (null 가드)
+        if (recordDates) {
+            recordDates.innerHTML = '';
+            labels.forEach(text => {
+                const s = document.createElement('span');
+                s.textContent = text;
+                recordDates.appendChild(s);
+            });
+        }
     }
 
     // 스와이프로 7일 윈도 이동
