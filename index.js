@@ -330,10 +330,17 @@ onReady(() => {
 
     // renderAnalysisView not needed after separate view implemented
 
-    bottomNav.addEventListener('click', (e) => {
-        const btn = e.target.closest('.nav-btn');
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.bottom-nav .nav-btn');
         if (!btn) return;
         const label = btn.dataset.label;
+        const app = document.querySelector('.app');
+        const pageView = document.getElementById('pageView');
+        const shopView = document.getElementById('shopView');
+        const analysisView = document.getElementById('analysisView');
+        const recordView = document.getElementById('recordView');
+        const menuView = document.getElementById('menuView');
+        if (!app || !pageView || !shopView || !analysisView || !menuView || !recordView) return;
         if (label === '상점') {
             app.classList.remove('analysis-mode');
             pageView.classList.add('hidden');
@@ -342,11 +349,9 @@ onReady(() => {
         } else if (label === '분석') {
             app.classList.add('analysis-mode');
             analysisView.classList.remove('hidden');
-            // 내부 분석 탭 기본 활성 상태 초기화
             document.querySelectorAll('.analysis-nav-btn').forEach((b, i)=>{
                b.classList.toggle('active', i===0);
             });
-            // 기본은 분석 서브뷰(버튼 화면)만 보이게
             recordView.classList.add('hidden');
         } else if(label==='메뉴'){
            menuView.classList.remove('hidden');
@@ -770,7 +775,8 @@ onReady(() => {
 
 onReady(() => {
   const menuViewLocal = document.getElementById('menuView');
-  menuViewLocal.addEventListener('click', e => {
+  document.addEventListener('click', e => {
+    if (!menuViewLocal || menuViewLocal.classList.contains('hidden')) return;
     const c = e.target.closest('.circle-btn');
     if (!c || c.classList.contains('disabled')) return;
     const dest = c.dataset.go;
