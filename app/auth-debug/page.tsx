@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import getSupabase from "../../lib/supabaseClient";
+import { getSupabase } from "../../lib/supabaseClient";
 
 export default function AuthDebugPage() {
   const [event, setEvent] = useState<string>("init");

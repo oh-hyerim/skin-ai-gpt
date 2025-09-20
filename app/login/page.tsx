@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import getSupabase from '../../lib/supabaseClient'
+import { getSupabase } from '../../lib/supabaseClient'
 
 export const dynamic = 'force-dynamic'
 
