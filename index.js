@@ -340,12 +340,15 @@ onReady(() => {
         const analysisView = document.getElementById('analysisView');
         const recordView = document.getElementById('recordView');
         const menuView = document.getElementById('menuView');
+        const analysisButtons = document.querySelector('.analysis-buttons');
         if (!app || !pageView || !shopView || !analysisView || !menuView || !recordView) return;
         if (label === '상점') {
             app.classList.remove('analysis-mode');
             pageView.classList.add('hidden');
             shopView.classList.remove('hidden');
             analysisView.classList.add('hidden');
+            menuView.classList.add('hidden');
+            if (analysisButtons) analysisButtons.style.display = 'none';
         } else if (label === '분석') {
             app.classList.add('analysis-mode');
             analysisView.classList.remove('hidden');
@@ -353,16 +356,24 @@ onReady(() => {
                b.classList.toggle('active', i===0);
             });
             recordView.classList.add('hidden');
+            shopView.classList.add('hidden');
+            pageView.classList.add('hidden');
+            menuView.classList.add('hidden');
+            if (analysisButtons) analysisButtons.style.display = 'flex';
         } else if(label==='메뉴'){
            menuView.classList.remove('hidden');
            pageView.classList.add('hidden');
            shopView.classList.add('hidden');
            analysisView.classList.add('hidden');
            app.classList.remove('analysis-mode');
+            if (analysisButtons) analysisButtons.style.display = 'none';
         } else {
             app.classList.remove('analysis-mode');
             analysisView.classList.add('hidden');
             shopView.classList.add('hidden');
+            pageView.classList.remove('hidden');
+            menuView.classList.add('hidden');
+            if (analysisButtons) analysisButtons.style.display = 'none';
         }
     });
 
@@ -776,7 +787,6 @@ onReady(() => {
 onReady(() => {
   const menuViewLocal = document.getElementById('menuView');
   document.addEventListener('click', e => {
-    if (!menuViewLocal || menuViewLocal.classList.contains('hidden')) return;
     const c = e.target.closest('.circle-btn');
     if (!c || c.classList.contains('disabled')) return;
     const dest = c.dataset.go;
@@ -784,7 +794,8 @@ onReady(() => {
     const analysisViewEl = document.getElementById('analysisView');
     const pageViewEl = document.getElementById('pageView');
     const shopViewEl = document.getElementById('shopView');
-    menuViewLocal.classList.add('hidden');
+    const menuViewEl = document.getElementById('menuView');
+    if (menuViewEl) menuViewEl.classList.add('hidden');
     if (dest === 'analysis') {
       appEl.classList.add('analysis-mode');
       analysisViewEl.classList.remove('hidden');
