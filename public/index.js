@@ -1587,9 +1587,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const recordChart = document.getElementById('recordChart');
-    const ctx = recordChart.getContext('2d');
+    const ctx = recordChart && recordChart.getContext ? recordChart.getContext('2d') : null;
 
     function resizeRecordCanvas(){
+        if (!recordChart || !ctx) return;
         const zone = document.getElementById('recordChartZone');
         if(!zone) return;
         const dpr = window.devicePixelRatio || 1;
@@ -1607,6 +1608,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const legendContainer = document.querySelector('.record-legend');
 
     function drawEmptyChart() {
+        if (!recordChart || !ctx) return;
         const w = recordChart.width / (window.devicePixelRatio||1);
         const h = recordChart.height / (window.devicePixelRatio||1);
         ctx.clearRect(0, 0, w, h);
@@ -1643,12 +1645,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             prevMonth = m;
         }
-        recordDates.innerHTML = '';
-        labels.forEach(text => {
-            const s = document.createElement('span');
-            s.textContent = text;
-            recordDates.appendChild(s);
-        });
+        if (recordDates) {
+            recordDates.innerHTML = '';
+            labels.forEach(text => {
+                const s = document.createElement('span');
+                s.textContent = text;
+                recordDates.appendChild(s);
+            });
+        }
     }
 
     let recordStartOffset = 0;
@@ -1673,7 +1677,7 @@ document.addEventListener('DOMContentLoaded', () => {
         drawEmptyChart();
     });
 
-    legendContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    if (legendContainer) legendContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => {
         const color = metricColors[cb.value] || '#000';
         try { cb.style.accentColor = color; } catch (_) {}
         cb.addEventListener('change', () => {
