@@ -4,31 +4,38 @@ function onReady(fn){
 }
 
 onReady(() => {
-    const skinTypeBtn = document.getElementById('skinTypeBtn');
-    const skinCard = document.getElementById('skinCard');
-    const closeCard = document.getElementById('closeCard');
-
     function openCard() {
-        skinCard.classList.remove('hidden');
+        const card = document.getElementById('skinCard');
+        if (!card) return;
+        card.classList.remove('hidden');
         // give small async tick to allow CSS transition
-        requestAnimationFrame(() => skinCard.classList.add('visible'));
+        requestAnimationFrame(() => card.classList.add('visible'));
     }
 
     function closeCardFn() {
-        skinCard.classList.remove('visible');
+        const card = document.getElementById('skinCard');
+        if (!card) return;
+        card.classList.remove('visible');
         // after transition ends, hide element
-        setTimeout(() => skinCard.classList.add('hidden'), 300);
+        setTimeout(() => card.classList.add('hidden'), 300);
     }
 
-    skinTypeBtn.addEventListener('click', () => {
-        if (skinCard.classList.contains('hidden')) {
-            openCard();
-        } else {
+    // Delegate clicks to avoid null references before React mounts
+    document.addEventListener('click', (e) => {
+        const toggleBtn = e.target.closest('#skinTypeBtn');
+        if (toggleBtn) {
+            const card = document.getElementById('skinCard');
+            if (!card) return;
+            if (card.classList.contains('hidden')) {
+                openCard();
+            } else {
+                closeCardFn();
+            }
+        }
+        if (e.target.closest('#closeCard')) {
             closeCardFn();
         }
     });
-
-    closeCard.addEventListener('click', closeCardFn);
 
     /* ------- 페이지 관리 ------- */
     let currentPageIdx = 0; // zero-based
