@@ -1,3 +1,5 @@
+import Script from "next/script"
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
@@ -6,8 +8,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen bg-gray-50 text-gray-900">
         {children}
-        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-        <script src="/index.js"></script>
+        <Script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js" strategy="afterInteractive" />
+        <Script src="/index.js" strategy="afterInteractive" />
       </body>
     </html>
   )

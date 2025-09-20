@@ -1,12 +1,14 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function HomePage() {
+  const [mounted, setMounted] = useState(false)
   useEffect(() => {
-    // 페이지 로드 후 index.js가 기존 동작(이벤트 바인딩 등)을 수행할 수 있도록 보장
-    // index.js는 app/layout.tsx에서 로드됨
+    setMounted(true)
   }, [])
+
+  if (!mounted) return null
 
   return (
     <div className="app">
