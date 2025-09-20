@@ -102,14 +102,16 @@ onReady(() => {
 
     function openLoginOverlay(path){
         const { base } = resolveNextBase();
-        loginFrame.src = base + (path || '/login');
-        app.classList.remove('analysis-mode');
-        pageView.classList.add('hidden');
-        shopView.classList.add('hidden');
-        analysisView.classList.add('hidden');
-        menuView.classList.add('hidden');
-        loginView.classList.remove('hidden');
-        loginView.classList.add('visible');
+        if (loginFrame) loginFrame.src = base + (path || '/login');
+        if (app) app.classList.remove('analysis-mode');
+        if (pageView) pageView.classList.add('hidden');
+        if (shopView) shopView.classList.add('hidden');
+        if (analysisView) analysisView.classList.add('hidden');
+        if (menuView) menuView.classList.add('hidden');
+        if (loginView) {
+            loginView.classList.remove('hidden');
+            loginView.classList.add('visible');
+        }
         // iframe 로드 후 자동완성 보정 시도 (동일 출처일 때만)
         const fix = () => {
             try {
@@ -125,7 +127,7 @@ onReady(() => {
                 // 교차 출처면 접근 불가 → 무시
             }
         };
-        loginFrame.addEventListener('load', fix, { once: true });
+        if (loginFrame) loginFrame.addEventListener('load', fix, { once: true });
     }
 
     function bindLoginButton(){
@@ -184,7 +186,8 @@ onReady(() => {
             signupBtnNew.addEventListener('click', () => openLoginOverlay('/signup'));
 			if (settingsEmailEl) {
 				settingsEmailEl.textContent = '';
-				s            }
+				settingsEmailEl.style.display = 'none';
+			}
         }
     }
 
@@ -255,12 +258,12 @@ onReady(() => {
 			if (!msg || msg.source !== 'skin-app') return;
 			if (msg.type === 'auth:login') {
 				if (msg.email) setBackupEmail(msg.email);
-				// 오버레이 닫고 메인 복귀
+				// 오버레이 닫고 메뉴 화면으로 복귀
 				if (loginView) {
 					loginView.classList.remove('visible');
 					loginView.classList.add('hidden');
 					if (loginFrame) loginFrame.src = '';
-					pageView.classList.remove('hidden');
+					if (menuView) menuView.classList.remove('hidden');
 				}
 				updateAuthUI();
 			}
@@ -503,12 +506,15 @@ onReady(() => {
         clearTimeout(pressTimer);
     }
 
-    mainDisplay.addEventListener('touchstart', startPressTimer);
-    mainDisplay.addEventListener('mousedown', startPressTimer);
+    // mainDisplay가 존재할 때만 이벤트 리스너 추가
+    if (mainDisplay) {
+        mainDisplay.addEventListener('touchstart', startPressTimer);
+        mainDisplay.addEventListener('mousedown', startPressTimer);
 
-    ['touchend', 'touchmove', 'mouseup', 'mouseleave'].forEach(evt => {
-        mainDisplay.addEventListener(evt, clearPressTimer);
-    });
+        ['touchend', 'touchmove', 'mouseup', 'mouseleave'].forEach(evt => {
+            mainDisplay.addEventListener(evt, clearPressTimer);
+        });
+    }
 
     function openEditOverlay() {
         editOverlay.classList.remove('hidden');
@@ -802,39 +808,57 @@ onReady(() => {
 });
 
 onReady(() => {
-  const menuViewLocal = document.getElementById('menuView');
+  // 메뉴 버튼 클릭 이벤트 처리
   document.addEventListener('click', e => {
     const c = e.target.closest('.circle-btn');
     if (!c || c.classList.contains('disabled')) return;
+    
     const dest = c.dataset.go;
     const appEl = document.querySelector('.app');
     const analysisViewEl = document.getElementById('analysisView');
     const pageViewEl = document.getElementById('pageView');
     const shopViewEl = document.getElementById('shopView');
     const menuViewEl = document.getElementById('menuView');
+    const alarmViewEl = document.getElementById('alarmView');
+    const settingsViewEl = document.getElementById('settingsView');
+    
+    // 모든 뷰를 먼저 숨김
+    if (analysisViewEl) analysisViewEl.classList.add('hidden');
+    if (pageViewEl) pageViewEl.classList.add('hidden');
+    if (shopViewEl) shopViewEl.classList.add('hidden');
     if (menuViewEl) menuViewEl.classList.add('hidden');
+    if (alarmViewEl) alarmViewEl.classList.add('hidden');
+    if (settingsViewEl) settingsViewEl.classList.add('hidden');
+    
+    // 목적지에 따라 적절한 뷰 표시
     if (dest === 'analysis') {
-      appEl.classList.add('analysis-mode');
-      analysisViewEl.classList.remove('hidden');
-      pageViewEl.classList.add('hidden');
-      shopViewEl.classList.add('hidden');
+      if (appEl) appEl.classList.add('analysis-mode');
+      if (analysisViewEl) analysisViewEl.classList.remove('hidden');
     } else if (dest === 'shop') {
-      appEl.classList.remove('analysis-mode');
-      shopViewEl.classList.remove('hidden');
-      analysisViewEl.classList.add('hidden');
-      pageViewEl.classList.add('hidden');
+      if (appEl) appEl.classList.remove('analysis-mode');
+      if (shopViewEl) shopViewEl.classList.remove('hidden');
     } else if (dest === 'alarm') {
-      appEl.classList.remove('analysis-mode');
-      document.getElementById('alarmView').classList.remove('hidden');
-      analysisViewEl.classList.add('hidden');
-      pageViewEl.classList.add('hidden');
-      shopViewEl.classList.add('hidden');
-    } else if(dest==='settings'){
-      appEl.classList.remove('analysis-mode');
-      document.getElementById('settingsView').classList.remove('hidden');
-      analysisViewEl.classList.add('hidden');
-      pageViewEl.classList.add('hidden');
-      shopViewEl.classList.add('hidden');
+      if (appEl) appEl.classList.remove('analysis-mode');
+      if (alarmViewEl) alarmViewEl.classList.remove('hidden');
+    } else if (dest === 'settings') {
+      if (appEl) appEl.classList.remove('analysis-mode');
+      if (settingsViewEl) settingsViewEl.classList.remove('hidden');
+    } else if (dest === 'community') {
+      // 커뮤니티 화면은 현재 없으므로 기본 페이지로
+      if (appEl) appEl.classList.remove('analysis-mode');
+      if (pageViewEl) pageViewEl.classList.remove('hidden');
+    } else if (dest === 'camera') {
+      // 카메라 화면은 현재 없으므로 기본 페이지로
+      if (appEl) appEl.classList.remove('analysis-mode');
+      if (pageViewEl) pageViewEl.classList.remove('hidden');
+    } else if (dest === 'gallery') {
+      // 갤러리 화면은 현재 없으므로 기본 페이지로
+      if (appEl) appEl.classList.remove('analysis-mode');
+      if (pageViewEl) pageViewEl.classList.remove('hidden');
+    } else {
+      // 기본값: 메인 페이지로
+      if (appEl) appEl.classList.remove('analysis-mode');
+      if (pageViewEl) pageViewEl.classList.remove('hidden');
     }
   });
 });
@@ -1312,11 +1336,14 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = base + destPath;
     }
 
-    // 메뉴 화면 상단 로그인 버튼 → /login 경로로 이동
+    // 메뉴 화면 상단 로그인 버튼 → 로그인 오버레이 열기
     if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            const { base } = resolveNextBase();
-            window.location.href = base + '/login';
+        // 기존 리스너 제거를 위해 클론 교체
+        const clone = loginBtn.cloneNode(true);
+        loginBtn.parentNode.replaceChild(clone, loginBtn);
+        
+        clone.addEventListener('click', () => {
+            openLoginOverlay('/login');
         });
     }
 
@@ -1324,8 +1351,9 @@ document.addEventListener('DOMContentLoaded', () => {
         loginClose.addEventListener('click', () => {
             loginView.classList.remove('visible');
             loginView.classList.add('hidden');
-            loginFrame.src = '';
-            pageView.classList.remove('hidden');
+            if (loginFrame) loginFrame.src = '';
+            // 로그인 화면을 닫을 때 현재 메뉴 화면 상태로 복귀
+            if (menuView) menuView.classList.remove('hidden');
         });
     }
 
@@ -1337,14 +1365,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const settingsSignupBtn = btns[1];
         if (settingsLoginBtn) {
             settingsLoginBtn.addEventListener('click', () => {
-                const { base } = resolveNextBase();
-                window.location.href = base + '/login';
+                openLoginOverlay('/login');
             });
         }
         if (settingsSignupBtn) {
             settingsSignupBtn.addEventListener('click', () => {
-                const { base } = resolveNextBase();
-                window.location.href = base + '/signup';
+                openLoginOverlay('/signup');
             });
         }
     }
@@ -1803,42 +1829,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  const menuViewLocal = document.getElementById('menuView');
-  menuViewLocal.addEventListener('click', e => {
-    const c = e.target.closest('.circle-btn');
-    if (!c || c.classList.contains('disabled')) return;
-    const dest = c.dataset.go;
-    const appEl = document.querySelector('.app');
-    const analysisViewEl = document.getElementById('analysisView');
-    const pageViewEl = document.getElementById('pageView');
-    const shopViewEl = document.getElementById('shopView');
-    menuViewLocal.classList.add('hidden');
-    if (dest === 'analysis') {
-      appEl.classList.add('analysis-mode');
-      analysisViewEl.classList.remove('hidden');
-      pageViewEl.classList.add('hidden');
-      shopViewEl.classList.add('hidden');
-    } else if (dest === 'shop') {
-      appEl.classList.remove('analysis-mode');
-      shopViewEl.classList.remove('hidden');
-      analysisViewEl.classList.add('hidden');
-      pageViewEl.classList.add('hidden');
-    } else if (dest === 'alarm') {
-      appEl.classList.remove('analysis-mode');
-      document.getElementById('alarmView').classList.remove('hidden');
-      analysisViewEl.classList.add('hidden');
-      pageViewEl.classList.add('hidden');
-      shopViewEl.classList.add('hidden');
-    } else if(dest==='settings'){
-      appEl.classList.remove('analysis-mode');
-      document.getElementById('settingsView').classList.remove('hidden');
-      analysisViewEl.classList.add('hidden');
-      pageViewEl.classList.add('hidden');
-      shopViewEl.classList.add('hidden');
-    }
-  });
-});
+// 이 코드는 이미 위에서 처리되므로 제거
 
 // ------- 알람 리스트 저장/렌더/수정 로직 -------
 document.addEventListener('DOMContentLoaded', () => {
