@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getSupabase } from '@/lib/supabaseClient'
+import { getSupabase } from '../../lib/supabaseClient'
 
 export default function TopBarAuthSwitch() {
   const [isAuthed, setAuthed] = useState(false)
@@ -24,9 +24,9 @@ export default function TopBarAuthSwitch() {
   return (
     <div className="w-full flex justify-end p-3">
       {isAuthed ? (
-        <button onClick={logout} className="px-3 py-1 rounded border">Logout</button>
+        <button onClick={logout} className="px-3 py-1 rounded border">로그아웃</button>
       ) : (
-        <a href="/login" className="px-3 py-1 rounded border">Login</a>
+        <a href="/login" className="px-3 py-1 rounded border">로그인</a>
       )}
     </div>
   )

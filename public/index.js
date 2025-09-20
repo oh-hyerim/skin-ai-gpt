@@ -57,9 +57,6 @@ onReady(() => {
     const shopView = document.getElementById('shopView');
 
     const loginBtn = document.getElementById('loginBtn');
-    const loginView = document.getElementById('loginView');
-    const loginClose = document.getElementById('loginClose');
-    const loginFrame = document.getElementById('loginFrame');
 
     // ---- Supabase 세션 유틸 (로컬스토리지 기반) ----
     function readSupabaseSession(){
@@ -104,43 +101,110 @@ onReady(() => {
 		try { localStorage.removeItem('authEmail'); } catch(_) {}
 	}
 
-    // 로그인은 라우팅 기반으로 이동
+    function openLoginOverlay(path){
+        // 오버레이 대신 라우팅 사용
+        navigateToNext(path || '/login');
+    }
 
     function bindLoginButton(){
         const btn = document.getElementById('loginBtn');
         if (!btn) return;
+        // 기존 리스너 제거를 위해 클론 교체
         const clone = btn.cloneNode(true);
         btn.parentNode.replaceChild(clone, btn);
-        clone.textContent = '로그인';
-        clone.addEventListener('click', () => { window.location.href = '/login'; });
+        const entry = readSupabaseSession();
+		const backupEmail = getBackupEmail();
+		const isLoggedIn = !!(entry && entry.session && entry.session.user) || !!backupEmail;
+        clone.textContent = isLoggedIn ? '로그아웃' : '로그인';
+        if (isLoggedIn) {
+            clone.addEventListener('click', () => {
+                clearSupabaseSessions();
+				clearBackupEmail();
+                window.location.href = '/';
+            });
+        } else {
+            clone.addEventListener('click', () => openLoginOverlay('/login'));
+        }
     }
 
-    function bindSettingsAuthButtons(){
+	function bindSettingsAuthButtons(){
         const card = document.querySelector('.settings-login-card');
         if (!card) return;
         const btns = card.querySelectorAll('button');
         const loginBtnEl = btns[0];
         const signupBtnEl = btns[1];
-        if (loginBtnEl) loginBtnEl.replaceWith(loginBtnEl.cloneNode(true));
-        if (signupBtnEl) signupBtnEl.replaceWith(signupBtnEl.cloneNode(true));
-        const nextBtns = card.querySelectorAll('button');
-        const loginBtnNew = nextBtns[0];
-        const signupBtnNew = nextBtns[1];
-        if (loginBtnNew) loginBtnNew.addEventListener('click', () => { window.location.href = '/login'; });
-        if (signupBtnNew) signupBtnNew.addEventListener('click', () => { window.location.href = '/signup'; });
+		const settingsEmailEl = document.getElementById('settingsEmail');
+        if (!loginBtnEl || !signupBtnEl) return;
+        // 기존 리스너 제거 (onclick으로 대체)
+        loginBtnEl.replaceWith(loginBtnEl.cloneNode(true));
+        signupBtnEl.replaceWith(signupBtnEl.cloneNode(true));
+        const loginBtnNew = card.querySelectorAll('button')[0];
+        const signupBtnNew = card.querySelectorAll('button')[1];
+        const entry = readSupabaseSession();
+		const backupEmail = getBackupEmail();
+		const hasSession = !!(entry && entry.session && entry.session.user);
+		const isLoggedIn = hasSession || !!backupEmail;
+		const email = hasSession ? (entry.session.user.email || '') : (backupEmail || '');
+        if (isLoggedIn) {
+			// 로그인 상태: 로그인/회원가입 버튼 숨김, 이메일 표시
+			signupBtnNew.style.display = 'none';
+			loginBtnNew.style.display = 'none';
+			if (settingsEmailEl) {
+				settingsEmailEl.textContent = email;
+				settingsEmailEl.style.display = '';
+			}
+        } else {
+            // 비로그인: 버튼 정상 표시 및 동작 바인딩
+            signupBtnNew.style.display = '';
+			loginBtnNew.style.display = '';
+			loginBtnNew.textContent = '로그인';
+            loginBtnNew.addEventListener('click', () => openLoginOverlay('/login'));
+            signupBtnNew.addEventListener('click', () => openLoginOverlay('/signup'));
+			if (settingsEmailEl) {
+				settingsEmailEl.textContent = '';
+				settingsEmailEl.style.display = 'none';
+			}
+        }
     }
 
     function updateUserEmailUI(){
+        const entry = readSupabaseSession();
+		let email = entry && entry.session && entry.session.user && entry.session.user.email ? entry.session.user.email : '';
+		if (!email) { email = getBackupEmail(); }
         const emailSpan = menuView && menuView.querySelector('.menu-bar span');
-        if (emailSpan) emailSpan.textContent = '';
+        if (emailSpan) emailSpan.textContent = email || '';
     }
 
-    function hookSettingsLogoutItem(){ /* 로그인/로그아웃은 상단 스위치로 처리 */ }
+    function hookSettingsLogoutItem(){
+        const settingsViewEl = document.getElementById('settingsView');
+        if (!settingsViewEl) return;
+        const items = settingsViewEl.querySelectorAll('.settings-item');
+        items.forEach((btn)=>{
+            if (btn.textContent && btn.textContent.trim() === '로그아웃') {
+                // 기존 리스너 방지
+                const clone = btn.cloneNode(true);
+                btn.parentNode.replaceChild(clone, btn);
+                clone.addEventListener('click', () => {
+                    clearSupabaseSessions();
+					clearBackupEmail();
+                    window.location.href = '/';
+                });
+            }
+        });
+    }
 
     function updateAuthUI(){
         bindLoginButton();
         bindSettingsAuthButtons();
+        hookSettingsLogoutItem();
         updateUserEmailUI();
+		// 설정 하단 로그아웃 항목 표시 토글
+		const entry = readSupabaseSession();
+		const isLoggedIn = !!(entry && entry.session && entry.session.user);
+		const logoutBtn = document.getElementById('logoutBtn');
+		if (logoutBtn) {
+			logoutBtn.style.display = isLoggedIn ? '' : 'none';
+		}
     }
 
     // Next.js 서버 베이스 URL 결정 및 필요 시 사용자 입력 받는 헬퍼
@@ -163,14 +227,19 @@ onReady(() => {
     // 로그인 버튼/세션 기반 UI 초기 바인딩
     updateAuthUI();
 
-    // 더 이상 메시지 기반 로그인 동기화 사용 안 함 (라우팅 기반)
+    // 메시지 기반 동기화 제거: 라우팅과 상단바로 제어
 
-    // 오버레이 방식 사용 안 함
+    // 오버레이 제거로 더 이상 필요 없음
 
     // 설정 화면 버튼은 세션 상태에 따라 동적으로 바인딩됨
     bindSettingsAuthButtons();
 
-    // 세션 storage 이벤트 동기화 제거
+    // 다른 컨텍스트(iframe 등)에서 세션 변경 시 UI 동기화
+    window.addEventListener('storage', (e)=>{
+        if (e && e.key && /^sb-.*-auth-token$/.test(e.key)) {
+            updateAuthUI();
+        }
+    });
 
 
     const PAGES = [];

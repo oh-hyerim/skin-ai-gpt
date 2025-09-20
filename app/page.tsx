@@ -281,10 +281,10 @@ export default function HomePage() {
           <button className="circle-btn disabled"></button>
         </div>
       </div>
-
+      
     </div>
-
-    {/* 랜딩(홈)에서만 index.js 로드 */}
+    
+    /* 랜딩(홈)에서만 index.js 로드 */
     <Script src="/index.js" strategy="afterInteractive" />
   )
 }
