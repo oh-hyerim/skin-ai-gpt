@@ -590,10 +590,11 @@ onReady(() => {
     };
 
     const recordChart = document.getElementById('recordChart');
-    const ctx = recordChart.getContext('2d');
+    const ctx = recordChart ? recordChart.getContext('2d') : null;
 
     // 캔버스를 컨테이너 폭에 맞춰 고해상도로 리사이즈
     function resizeRecordCanvas(){
+        if (!recordChart || !ctx) return;
         const zone = document.getElementById('recordChartZone');
         if(!zone) return;
         const dpr = window.devicePixelRatio || 1;
@@ -612,27 +613,21 @@ onReady(() => {
     const legendContainer = document.querySelector('.record-legend');
 
     function drawEmptyChart() {
-
+        if (!recordChart || !ctx) return;
         const w = recordChart.width / (window.devicePixelRatio||1);
         const h = recordChart.height / (window.devicePixelRatio||1);
         ctx.clearRect(0, 0, w, h);
-
         ctx.clearRect(0, 0, recordChart.width, recordChart.height);
-
-        // X/Y 축 가이드만 얇게 표시(빈 그래프)
         ctx.strokeStyle = '#bbb';
         ctx.lineWidth = 1;
         ctx.beginPath();
-
         const paddingL = 24; const paddingB = 20; const paddingT = 10;
         ctx.moveTo(paddingL, paddingT);
         ctx.lineTo(paddingL, h - paddingB);
         ctx.lineTo(w - 10, h - paddingB);
-
         ctx.moveTo(20, 10);
         ctx.lineTo(20, 150);
         ctx.lineTo(250, 150);
-
         ctx.stroke();
     }
 
@@ -668,15 +663,15 @@ onReady(() => {
     let recordStartOffset = 0;
     const chartZone = document.getElementById('recordChartZone');
     let startXRecord;
-    chartZone.addEventListener('touchstart', e => { startXRecord = e.touches[0].clientX; });
-    chartZone.addEventListener('touchend', e => {
+    if (chartZone) chartZone.addEventListener('touchstart', e => { startXRecord = e.touches[0].clientX; });
+    if (chartZone) chartZone.addEventListener('touchend', e => {
         const diff = e.changedTouches[0].clientX - startXRecord;
         if (Math.abs(diff) < 40) return;
         recordStartOffset += diff < 0 ? 7 : -7;
         setDatesWindow(recordStartOffset);
         drawEmptyChart();
     });
-    chartZone.addEventListener('mousedown', e => { startXRecord = e.clientX; });
+    if (chartZone) chartZone.addEventListener('mousedown', e => { startXRecord = e.clientX; });
     document.addEventListener('mouseup', e => {
         if (startXRecord == null) return;
         const diff = e.clientX - startXRecord;
@@ -688,7 +683,7 @@ onReady(() => {
     });
 
     // 체크박스 색 표시(그래프는 아직 빈 상태 유지)
-    legendContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    if (legendContainer) legendContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => {
         const color = metricColors[cb.value] || '#000';
         // 체크박스 자체 색상 지정
         try { cb.style.accentColor = color; } catch (_) {}
@@ -712,11 +707,13 @@ onReady(() => {
     const routineModeBtn = document.getElementById('routineModeBtn');
     const routineModeMenu = document.getElementById('routineModeMenu');
 
-    routineModeBtn.addEventListener('click', () => {
-        routineModeMenu.classList.toggle('hidden');
-    });
+    if (routineModeBtn && routineModeMenu) {
+        routineModeBtn.addEventListener('click', () => {
+            routineModeMenu.classList.toggle('hidden');
+        });
+    }
 
-    routineModeMenu.addEventListener('click', (e) => {
+    if (routineModeMenu && routineModeBtn && routineModeMenu) routineModeMenu.addEventListener('click', (e) => {
         const btn = e.target.closest('.mode-btn');
         if (!btn) return;
         routineModeMenu.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active','remove'));
@@ -734,10 +731,12 @@ onReady(() => {
     });
 
     // 메뉴 바깥 클릭 시 닫기
-    document.addEventListener('click', (e) => {
-        const within = e.target.closest('#routineModeMenu') || e.target.closest('#routineModeBtn');
-        if (!within) routineModeMenu.classList.add('hidden');
-    });
+    if (routineModeMenu) {
+        document.addEventListener('click', (e) => {
+            const within = e.target.closest('#routineModeMenu') || e.target.closest('#routineModeBtn');
+            if (!within) routineModeMenu.classList.add('hidden');
+        });
+    }
 
     /* ---------- 내 제품 로직 ---------- */
     const productAddBtn = document.getElementById('productAddBtn');
@@ -1543,9 +1542,11 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => editOverlay.classList.add('hidden'), 300);
     }
 
-    editOverlay.addEventListener('click', e => {
-        if (e.target === editOverlay) closeEditOverlay();
-    });
+    if (editOverlay) {
+        editOverlay.addEventListener('click', e => {
+            if (e.target === editOverlay) closeEditOverlay();
+        });
+    }
 
     addPageBtn.addEventListener('click', () => {
         const pageDiv = createPage(PAGES.length + 1);
@@ -1794,7 +1795,7 @@ document.addEventListener('DOMContentLoaded', () => {
         brandI.focus();
     }
 
-    productAddBtn.addEventListener('click',()=>{
+    if (productAddBtn) productAddBtn.addEventListener('click',()=>{
         if(productListEl.querySelector('.product-input'))return;
         createInputCard();
     });
