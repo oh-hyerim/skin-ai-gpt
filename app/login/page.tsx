@@ -39,7 +39,7 @@ export default function LoginPage() {
   const handleGoogle = async () => {
     setError(null)
     setGoogleLoading(true)
-    const redirectTo = typeof window !== 'undefined' ? window.location.origin + '/' : 'https://skin-ai-gpt.vercel.app/'
+    const redirectTo = window.location.origin + '/'
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo }
