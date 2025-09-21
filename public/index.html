@@ -273,24 +273,42 @@
         </div>
     </div>
 
-    <!-- 로그인 오버레이 (Next.js 페이지를 iframe으로 표시) -->
+    <!-- 로그인 화면 -->
     <div id="loginView" class="login-view hidden">
         <button id="loginClose" class="login-close" aria-label="닫기">×</button>
-        <div id="loginOptions" class="login-options">
-            <h3 class="login-title">로그인</h3>
-            <div class="login-buttons social">
-                <button id="btnKakao" class="login-btn kakao">카카오로 계속하기</button>
-                <button id="btnNaver" class="login-btn naver">네이버로 계속하기</button>
-                <button id="btnGoogle" class="login-btn google">구글로 계속하기</button>
+        <div id="loginOptions" class="login-container">
+            <div class="login-header">
+                <h2 class="login-title">로그인</h2>
             </div>
-            <div class="login-sep"></div>
-            <div class="login-buttons email">
-                <button id="btnEmailLogin" class="login-btn outline">이메일로 로그인하기</button>
-                <button id="btnEmailSignup" class="login-btn outline">이메일로 회원가입하기</button>
-            </div>
-            <div class="login-sep small"></div>
-            <div class="login-buttons etc">
-                <button id="btnGuest" class="login-btn ghost">둘러보기</button>
+            
+            <div class="login-content">
+                <div class="social-login-section">
+                    <button id="btnKakao" class="social-btn kakao">
+                        <span class="social-icon">💬</span>
+                        <span>카카오로 계속하기</span>
+                    </button>
+                    <button id="btnNaver" class="social-btn naver">
+                        <span class="social-icon">N</span>
+                        <span>네이버로 계속하기</span>
+                    </button>
+                    <button id="btnGoogle" class="social-btn google">
+                        <span class="social-icon">G</span>
+                        <span>구글로 계속하기</span>
+                    </button>
+                </div>
+                
+                <div class="divider">
+                    <span>또는</span>
+                </div>
+                
+                <div class="email-login-section">
+                    <button id="btnEmailLogin" class="email-btn primary">이메일로 로그인하기</button>
+                    <button id="btnEmailSignup" class="email-btn secondary">이메일로 회원가입하기</button>
+                </div>
+                
+                <div class="guest-section">
+                    <button id="btnGuest" class="guest-btn">둘러보기</button>
+                </div>
             </div>
         </div>
         <iframe id="loginFrame" class="login-frame hidden" src="" frameborder="0"></iframe>
