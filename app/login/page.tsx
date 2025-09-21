@@ -1,22 +1,14 @@
-"use client";
-import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import LoginClient from "./LoginClient";
 
-export default function LoginPage() {
-  const sp = useSearchParams();
-  const callbackUrl = sp.get("callbackUrl") || "/dashboard";
+// 정적 프리렌더를 피하고 동적으로 처리
+export const dynamic = "force-dynamic";
 
-  const onGoogle = () => {
-    signIn("google", { callbackUrl });
-  };
-
+export default function Page() {
   return (
-    <main style={{display:"grid",placeItems:"center",minHeight:"60vh",gap:16}}>
-      <h1>Login</h1>
-      <button onClick={onGoogle} style={{padding:"10px 16px", border:"1px solid #ccc", borderRadius:8}}>
-        Continue with Google
-      </button>
-    </main>
+    <Suspense fallback={<main style={{display:"grid",placeItems:"center",minHeight:"60vh"}}>Loading...</main>}>
+      <LoginClient />
+    </Suspense>
   );
 }
 
