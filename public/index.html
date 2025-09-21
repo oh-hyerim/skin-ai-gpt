@@ -8,26 +8,24 @@
 </head>
 <body>
     <div class="app">
-        <!-- Home View (Main Container) -->
-        <main id="homeView">
-            <!-- Skin Type Button -->
-            <button id="skinTypeBtn" class="skin-type-btn">피부 타입</button>
+        <!-- Skin Type Button -->
+        <button id="skinTypeBtn" class="skin-type-btn">피부 타입</button>
 
-            <!-- Popup Card -->
-            <div id="skinCard" class="skin-card hidden">
-                <div class="card-header">
-                    <span id="skinTypeLabel">피부 타입</span>
-                    <button id="closeCard" class="close-btn">&times;</button>
-                </div>
-                <div class="card-content">
-                    <!-- 추후 사용자 데이터에 따라 채워질 영역 -->
-                    <p>카드 영역입니다. 사용자별 피부 타입 정보를 표시합니다.</p>
-                </div>
+        <!-- Popup Card -->
+        <div id="skinCard" class="skin-card hidden">
+            <div class="card-header">
+                <span id="skinTypeLabel">피부 타입</span>
+                <button id="closeCard" class="close-btn">&times;</button>
             </div>
+            <div class="card-content">
+                <!-- 추후 사용자 데이터에 따라 채워질 영역 -->
+                <p>카드 영역입니다. 사용자별 피부 타입 정보를 표시합니다.</p>
+            </div>
+        </div>
 
-            <!-- Page (기존) View -->
-            <div id="pageView" class="view active">
-            <main class="main-display">
+        <!-- Page (기존) View / Home View -->
+        <div id="pageView" class="view active">
+            <main id="homeView" class="main-display">
                 <div id="pagesWrapper" class="pages-wrapper"></div>
             </main>
             <!-- Page Indicators -->
@@ -314,8 +312,6 @@
             </div>
         </div>
         <iframe id="loginFrame" class="login-frame hidden" src="" frameborder="0"></iframe>
-    </div>
-        </main> <!-- homeView 닫기 -->
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js" defer></script>
