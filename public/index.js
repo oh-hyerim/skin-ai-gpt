@@ -1,7 +1,20 @@
 // 요구 HTML:
-// <button id="alarmCancelBtn" class="alarm-cancel">취소</button>
-// <div id="alarmFormView">…</div>
-// <div id="alarmView" class="hidden">…</div>
+// <button id="loginBtn">로그인</button>  (메뉴 아이콘)
+// <main id="homeView"> ... 홈 콘텐츠 ... </main>
+// <main id="loginView" class="hidden"> ... 로그인 페이지 ... </main>
+// <button id="guestBtn">둘러보기</button>
+
+// 공통 뷰 전환 함수
+function showView(targetId) {
+    document.querySelectorAll('main').forEach(m => m.classList.add('hidden'));
+    const t = document.getElementById(targetId);
+    if (t) {
+        t.classList.remove('hidden');
+        console.log(`[showView] ${targetId} 표시됨`);
+    } else {
+        console.debug(`[showView] ${targetId} 요소 없음 — 스킵`);
+    }
+}
 
 function onReady(fn){
     if (document.readyState !== 'loading') { fn(); }
@@ -178,9 +191,16 @@ onReady(() => {
     function bindLoginButton(){
         const btn = document.getElementById('loginBtn');
         if (!btn) {
-            console.debug('[bindLoginButton] #loginBtn 요소를 찾을 수 없음');
+            console.debug('[login] #loginBtn 요소 없음 — 스킵');
             return;
         }
+        
+        // 중복 바인딩 방지
+        if (btn.dataset.bound === 'true') {
+            console.debug('[login] #loginBtn 이미 바인딩됨 — 스킵');
+            return;
+        }
+        
         console.log('[bindLoginButton] #loginBtn 바인딩 시작');
         
         // 기존 리스너 제거를 위해 클론 교체
@@ -200,42 +220,12 @@ onReady(() => {
             });
         } else {
             clone.addEventListener('click', () => {
-                console.log('[login] 로그인 버튼 클릭됨 - 옵션 화면 열기');
-                const loginOptions = document.getElementById('loginOptions');
-                const loginFrame = document.getElementById('loginFrame');
-                const app = document.querySelector('.app');
-                const pageView = document.getElementById('pageView');
-                const shopView = document.getElementById('shopView');
-                const analysisView = document.getElementById('analysisView');
-                const menuView = document.getElementById('menuView');
-                const loginView = document.getElementById('loginView');
-
-                // iframe 숨기고 옵션 표시
-                if (loginFrame) { 
-                    loginFrame.classList.add('hidden'); 
-                    loginFrame.src=''; 
-                }
-                if (loginOptions) {
-                    loginOptions.classList.remove('hidden');
-                    loginOptions.style.display = 'block';
-                    console.log('[login] loginOptions 표시됨');
-                }
-                
-                // 다른 뷰들 숨기기
-                if (app) app.classList.remove('analysis-mode');
-                if (pageView) pageView.classList.add('hidden');
-                if (shopView) shopView.classList.add('hidden');
-                if (analysisView) analysisView.classList.add('hidden');
-                if (menuView) menuView.classList.add('hidden');
-                
-                // 로그인 뷰 표시
-                if (loginView) { 
-                    loginView.classList.remove('hidden'); 
-                    loginView.classList.add('visible');
-                    console.log('[login] loginView 표시됨');
-                }
+                console.log('[login] 로그인 버튼 클릭됨 - 로그인 뷰로 전환');
+                showView('loginView');
             });
         }
+        // 바인딩 완료 플래그 설정
+        clone.dataset.bound = 'true';
         console.log('[bindLoginButton] 바인딩 완료, 로그인 상태:', isLoggedIn);
     }
 
@@ -423,20 +413,8 @@ onReady(() => {
             openLoginIframe('/signup');
         });
         on(btnGuest, 'click', () => {
-            console.log('[login] 둘러보기 버튼 클릭됨 - 메인으로 복귀');
-            // 옵션 닫고 메인으로 복귀
-            if (loginView) {
-                loginView.classList.remove('visible');
-                loginView.classList.add('hidden');
-                console.log('[login] loginView 숨김 처리됨');
-            }
-            if (analysisView) analysisView.classList.add('hidden');
-            if (shopView) shopView.classList.add('hidden');
-            if (menuView) menuView.classList.add('hidden');
-            if (pageView) {
-                pageView.classList.remove('hidden');
-                console.log('[login] pageView 표시됨 - 메인 화면 복귀');
-            }
+            console.log('[login] 둘러보기 버튼 클릭됨 - 홈으로 복귀');
+            showView('homeView');
         });
         
         // 소셜 버튼은 추후 연동
