@@ -8,6 +8,11 @@ function onReady(fn){
     else { document.addEventListener('DOMContentLoaded', fn); }
 }
 
+// 안전 선택자 & 리스너 (초기화 블록에서 사용)
+const $  = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+const on = (el, type, handler, opts) => { if (el) el.addEventListener(type, handler, opts); };
+
 onReady(() => {
     function openCard() {
         const card = document.getElementById('skinCard');
@@ -758,9 +763,7 @@ onReady(() => {
     }
 
     /* ---------- 내 제품 로직 ---------- */
-    // 필수 요소(ID는 HTML과 동일해야 함)
-    const productAddBtn = document.getElementById('productAddBtn');
-    const productListEl = document.getElementById('productList');
+    // [Product UI] 존재할 때만 바인딩
 
     function loadProducts() {
         const saved = JSON.parse(localStorage.getItem('productList')||'[]');
@@ -769,6 +772,7 @@ onReady(() => {
 
     function saveProducts() {
         const arr=[];
+        const productListEl = document.getElementById('productList');
         if (!productListEl) return; // 안전 가드
         productListEl.querySelectorAll('.product-card').forEach(card=>{
             arr.push({brand:card.dataset.brand,name:card.dataset.name});
@@ -777,6 +781,7 @@ onReady(() => {
     }
 
     function renderProductCard(brand,name,img){
+        const productListEl = document.getElementById('productList');
         if (!productListEl) return; // 안전 가드
         const card=document.createElement('div');
         card.className='product-card';
@@ -792,6 +797,7 @@ onReady(() => {
     }
 
     function createInputCard(){
+        const productListEl = $('#productList');
         if (!productListEl) return; // 안전 가드
         const wrap=document.createElement('div');
         wrap.className='product-input';
@@ -821,22 +827,17 @@ onReady(() => {
         productListEl.prepend(wrap);
         if (brandI) brandI.focus();
     }
-
-    function initProductUI() {
-        if (!productAddBtn || !productListEl) {
-            console.warn('[product UI] 필수 요소를 찾지 못했습니다. HTML에 #productAddBtn, #productList가 있는지 확인하세요.');
-            return;
-        }
-        productAddBtn.addEventListener('click', () => {
+    const productAddBtn = $('#productAddBtn');
+    const productListEl = $('#productList');
+    if (productAddBtn && productListEl) {
+        on(productAddBtn, 'click', () => {
             if (productListEl.querySelector('.product-input')) return;
             createInputCard();
         });
-        // 저장된 데이터 초기 로드
         if (typeof loadProducts === 'function') loadProducts();
+    } else {
+        console.debug('[product UI] #productAddBtn 또는 #productList 없음 → 이 페이지에서는 스킵');
     }
-
-    // onReady 내에서 DOM이 준비되었으므로 즉시 초기화
-    initProductUI();
 
     // 요구 HTML:
     // <button id="productAddBtn">제품 추가</button>
@@ -908,6 +909,12 @@ onReady(() => {
   const addBtn = document.querySelector('.alarm-add');
   const saveBtn = document.getElementById('alarmSaveBtn');
   const cancelBtn = document.getElementById('alarmCancelBtn');
+
+  // [Alarm UI] 요소 존재 확인 후에만 바인딩
+  if (!alarmFormView || !alarmView) {
+    console.debug('[alarm] alarmFormView/alarmView 없음 → 이 페이지에서는 스킵');
+    return;
+  }
 
   // 현재 편집 중인 알람 인덱스 (신규는 null)
   let editingIndex = null;
@@ -1028,7 +1035,7 @@ onReady(() => {
     console.warn('[alarm] cancelBtn/alarmFormView/alarmView 요소를 찾지 못했습니다.');
   }
 
-  // AM/PM 토글
+  // AM/PM 토글: 폼 래퍼 위임
   alarmFormView.addEventListener('click', (e) => {
     const btn = e.target.closest('.ampm-btn');
     if (!btn) return;
@@ -1810,8 +1817,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* ---------- 내 제품 로직 ---------- */
-    const productAddBtn = document.getElementById('productAddBtn');
-    const productListEl = document.getElementById('productList');
+    // [Product UI] 존재할 때만 바인딩
 
     function loadProducts() {
         const saved = JSON.parse(localStorage.getItem('productList')||'[]');
@@ -1820,6 +1826,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveProducts() {
         const arr=[];
+        const productListEl = document.getElementById('productList');
+        if (!productListEl) return;
         productListEl.querySelectorAll('.product-card').forEach(card=>{
             arr.push({brand:card.dataset.brand,name:card.dataset.name});
         });
@@ -1827,12 +1835,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderProductCard(brand,name,img){
+        const productListEl = document.getElementById('productList');
+        if (!productListEl) return;
         const card=document.createElement('div');
         card.className='product-card';
         card.dataset.brand=brand;card.dataset.name=name;
         const thumbHtml= img?`<img class="product-thumb" src="${img}">`:`<div class="product-thumb placeholder">＋</div>`;
         card.innerHTML=`${thumbHtml}<h4>${brand}</h4><p>${name}</p><button class="remove">－</button>`;
-        card.querySelector('.remove').addEventListener('click',()=>{
+        const removeBtn = card.querySelector('.remove');
+        if (removeBtn) removeBtn.addEventListener('click',()=>{
             card.remove();
             saveProducts();
         });
@@ -1840,6 +1851,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createInputCard(){
+        const productListEl = $('#productList');
+        if (!productListEl) return;
         const wrap=document.createElement('div');
         wrap.className='product-input';
         wrap.innerHTML=`<label class="img-btn" title="이미지 추가">＋<input type="file" accept="image/*" style="display:none"></label><div class="fields"><input placeholder="브랜드"/><input placeholder="제품명"/></div><button class="save">저장</button>`;
@@ -1847,29 +1860,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const brandI=wrap.querySelector('.fields input:nth-child(1)');
         const nameI=wrap.querySelector('.fields input:nth-child(2)');
         let imgData='';
-        fileInput.addEventListener('change',e=>{
-           const f=e.target.files[0];if(!f)return;
+        if (fileInput) fileInput.addEventListener('change',e=>{
+           const f=e.target.files && e.target.files[0]; if(!f)return;
            const reader=new FileReader();
-           reader.onload=ev=>{imgData=ev.target.result;};
+           reader.onload=ev=>{imgData=(ev && ev.target && ev.target.result)||'';};
            reader.readAsDataURL(f);
         });
-        wrap.querySelector('.save').addEventListener('click',()=>{
-            const b=brandI.value.trim(), n=nameI.value.trim();
+        const saveBtn = wrap.querySelector('.save');
+        if (saveBtn) saveBtn.addEventListener('click',()=>{
+            const b=(brandI && brandI.value ? brandI.value : '').trim();
+            const n=(nameI && nameI.value ? nameI.value : '').trim();
             if(!b||!n)return;
             renderProductCard(b,n,imgData);
             saveProducts();
             wrap.remove();
         });
         productListEl.prepend(wrap);
-        brandI.focus();
+        if (brandI) brandI.focus();
     }
-
-    if (productAddBtn) productAddBtn.addEventListener('click',()=>{
-        if(productListEl.querySelector('.product-input'))return;
-        createInputCard();
-    });
-
-    loadProducts();
+    const productAddBtn = $('#productAddBtn');
+    const productListEl = $('#productList');
+    if (productAddBtn && productListEl) {
+        on(productAddBtn, 'click', ()=>{
+            if(productListEl.querySelector('.product-input'))return;
+            createInputCard();
+        });
+        loadProducts();
+    } else {
+        console.debug('[product UI] #productAddBtn 또는 #productList 없음 → 이 페이지에서는 스킵');
+    }
 });
 
 // 이 코드는 이미 위에서 처리되므로 제거
@@ -1882,6 +1901,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const addBtn = document.querySelector('.alarm-add');
   const saveBtn = document.getElementById('alarmSaveBtn');
   const cancelBtn = document.getElementById('alarmCancelBtn');
+
+  // [Alarm UI] 요소 존재 확인 후에만 바인딩
+  if (!alarmFormView || !alarmView) {
+    console.debug('[alarm] alarmFormView/alarmView 없음 → 이 페이지에서는 스킵');
+    return;
+  }
 
   let editingIndex = null;
   const KEY = 'alarms';
