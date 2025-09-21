@@ -174,7 +174,12 @@ onReady(() => {
 
     function bindLoginButton(){
         const btn = document.getElementById('loginBtn');
-        if (!btn) return;
+        if (!btn) {
+            console.debug('[bindLoginButton] #loginBtn 요소를 찾을 수 없음');
+            return;
+        }
+        console.log('[bindLoginButton] #loginBtn 바인딩 시작');
+        
         // 기존 리스너 제거를 위해 클론 교체
         const clone = btn.cloneNode(true);
         btn.parentNode.replaceChild(clone, btn);
@@ -182,15 +187,17 @@ onReady(() => {
 		const backupEmail = getBackupEmail();
 		const isLoggedIn = !!(entry && entry.session && entry.session.user) || !!backupEmail;
         clone.textContent = isLoggedIn ? '로그아웃' : '로그인';
+        
         if (isLoggedIn) {
             clone.addEventListener('click', () => {
+                console.log('[login] 로그아웃 버튼 클릭됨');
                 clearSupabaseSessions();
 				clearBackupEmail();
                 window.location.href = '/';
             });
         } else {
             clone.addEventListener('click', () => {
-                console.log('[login] 로그인 버튼 클릭됨');
+                console.log('[login] 로그인 버튼 클릭됨 - 옵션 화면 열기');
                 const loginOptions = document.getElementById('loginOptions');
                 const loginFrame = document.getElementById('loginFrame');
                 const app = document.querySelector('.app');
@@ -200,19 +207,32 @@ onReady(() => {
                 const menuView = document.getElementById('menuView');
                 const loginView = document.getElementById('loginView');
 
-                if (loginFrame) { loginFrame.classList.add('hidden'); loginFrame.src=''; }
-                if (loginOptions) loginOptions.classList.remove('hidden');
+                // iframe 숨기고 옵션 표시
+                if (loginFrame) { 
+                    loginFrame.classList.add('hidden'); 
+                    loginFrame.src=''; 
+                }
+                if (loginOptions) {
+                    loginOptions.classList.remove('hidden');
+                    console.log('[login] loginOptions 표시됨');
+                }
+                
+                // 다른 뷰들 숨기기
                 if (app) app.classList.remove('analysis-mode');
                 if (pageView) pageView.classList.add('hidden');
                 if (shopView) shopView.classList.add('hidden');
                 if (analysisView) analysisView.classList.add('hidden');
                 if (menuView) menuView.classList.add('hidden');
+                
+                // 로그인 뷰 표시
                 if (loginView) { 
                     loginView.classList.remove('hidden'); 
-                    loginView.classList.add('visible'); 
+                    loginView.classList.add('visible');
+                    console.log('[login] loginView 표시됨');
                 }
             });
         }
+        console.log('[bindLoginButton] 바인딩 완료, 로그인 상태:', isLoggedIn);
     }
 
 	function bindSettingsAuthButtons(){
@@ -477,15 +497,15 @@ onReady(() => {
             menuView.classList.add('hidden');
             if (analysisButtons) analysisButtons.style.display = 'flex';
         } else if(label==='메뉴'){
+           console.log('[nav] 메뉴 버튼 클릭됨');
            menuView.classList.remove('hidden');
            pageView.classList.add('hidden');
            shopView.classList.add('hidden');
            analysisView.classList.add('hidden');
            app.classList.remove('analysis-mode');
-            if (analysisButtons) analysisButtons.style.display = 'none';
-            // 메뉴 화면으로 전환 시 로그인 버튼 재바인딩
-            console.log('[menu] 메뉴 화면으로 전환, 로그인 버튼 재바인딩');
-            setTimeout(() => bindLoginButton(), 50);
+           if (analysisButtons) analysisButtons.style.display = 'none';
+           // 메뉴 화면으로 전환되면 로그인 버튼 재바인딩
+           setTimeout(() => bindLoginButton(), 100);
         } else {
             app.classList.remove('analysis-mode');
             analysisView.classList.add('hidden');
@@ -1624,13 +1644,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             recordView.classList.add('hidden');
         } else if(label==='메뉴'){
+           console.log('[nav] 메뉴 버튼 클릭됨 (하단)');
            menuView.classList.remove('hidden');
            pageView.classList.add('hidden');
            shopView.classList.add('hidden');
            analysisView.classList.add('hidden');
            app.classList.remove('analysis-mode');
-           // 메뉴 화면으로 전환 시 로그인 버튼 재바인딩
-           setTimeout(() => bindLoginButton(), 50);
+           // 메뉴 화면으로 전환되면 로그인 버튼 재바인딩
+           setTimeout(() => bindLoginButton(), 100);
         } else {
             app.classList.remove('analysis-mode');
             analysisView.classList.add('hidden');
