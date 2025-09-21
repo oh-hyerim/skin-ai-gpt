@@ -1,10 +1,15 @@
-import LoginBoundary from "./LoginBoundary";
+"use client";
+import { signIn } from "next-auth/react";
 
-// 정적 프리렌더를 피하고 동적으로 처리
-export const dynamic = "force-dynamic";
-
-export default function Page() {
-  return <LoginBoundary />;
+export default function LoginPage() {
+  return (
+    <main>
+      <h1>로그인</h1>
+      <div id="loginOptions">
+        <button onClick={() => signIn("google")}>Google로 로그인</button>
+      </div>
+    </main>
+  );
 }
 
 

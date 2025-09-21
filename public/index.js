@@ -388,13 +388,13 @@ onReady(() => {
     bindSettingsAuthButtons();
 
     // 로그인 옵션 버튼 초기화
-    (function initLoginOptionsUI(){
-        console.log('[initLoginOptionsUI] 로그인 옵션 버튼 초기화 시작');
-        const opts = document.getElementById('loginOptions');
-        if (!opts) {
-            console.error('[initLoginOptionsUI] loginOptions 요소를 찾을 수 없음');
+    function initLoginOptionsUI() {
+        const el = document.getElementById('loginOptions');
+        if (!el) {
+            console.debug('[initLoginOptionsUI] loginOptions 요소 없음 — 스킵');
             return;
         }
+        console.log('[initLoginOptionsUI] 로그인 옵션 버튼 초기화 시작');
         
         const btnKakao = document.getElementById('btnKakao');
         const btnNaver = document.getElementById('btnNaver');
@@ -454,7 +454,16 @@ onReady(() => {
         });
         
         console.log('[initLoginOptionsUI] 로그인 옵션 버튼 바인딩 완료');
-    })();
+    }
+
+    // /login 경로일 때만 실행
+    if (location.pathname === '/login') {
+        try { 
+            initLoginOptionsUI(); 
+        } catch (e) { 
+            console.debug('initLoginOptionsUI 실패', e); 
+        }
+    }
 
     // 다른 컨텍스트(iframe 등)에서 세션 변경 시 UI 동기화
     window.addEventListener('storage', (e)=>{
