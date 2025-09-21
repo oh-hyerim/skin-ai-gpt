@@ -328,5 +328,26 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f2f2f2; pa
 .login-view{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:9999;}
 .login-view.visible{display:flex;}
 .login-frame{width:min(100%,420px);height:80vh;border-radius:12px;background:#fff;}
+.login-options{width:100%;max-width:425px;background:#fff;border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:12px;align-items:center;}
+.login-title{margin-bottom:8px;font-size:1.2rem;}
+.login-buttons{width:100%;display:flex;flex-direction:column;gap:10px;}
+.login-btn{width:100%;height:48px;border:none;border-radius:10px;cursor:pointer;font-size:1rem;}
+.login-btn.kakao{background:#FEE500;}
+.login-btn.naver{background:#03C75A;color:#fff;}
+.login-btn.google{background:#fff;border:1px solid #ddd;}
+.login-btn.outline{background:#fff;border:1px solid #bbb;}
+.login-btn.ghost{background:transparent;border:1px solid #ddd;color:#333;}
+.login-sep{height:12px;}
+.login-sep.small{height:4px;}
+
+@media (max-width: 424px){
+  .login-title{font-size:1.05rem;}
+  .login-btn{height:44px;font-size:0.95rem;}
+}
+
+@media (min-width: 425px){
+  .login-options{width:425px;}
+  .login-btn{max-width:425px;}
+}
 .login-close{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:18px;border:none;background:rgba(255,255,255,0.9);font-size:22px;cursor:pointer;}
 
