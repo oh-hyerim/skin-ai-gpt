@@ -382,8 +382,13 @@ onReady(() => {
 
     // 로그인 옵션 버튼 초기화
     (function initLoginOptionsUI(){
+        console.log('[initLoginOptionsUI] 로그인 옵션 버튼 초기화 시작');
         const opts = document.getElementById('loginOptions');
-        if (!opts) return;
+        if (!opts) {
+            console.error('[initLoginOptionsUI] loginOptions 요소를 찾을 수 없음');
+            return;
+        }
+        
         const btnKakao = document.getElementById('btnKakao');
         const btnNaver = document.getElementById('btnNaver');
         const btnGoogle = document.getElementById('btnGoogle');
@@ -391,23 +396,55 @@ onReady(() => {
         const btnEmailSignup = document.getElementById('btnEmailSignup');
         const btnGuest = document.getElementById('btnGuest');
 
-        on(btnEmailLogin, 'click', () => openLoginIframe('/login'));
-        on(btnEmailSignup, 'click', () => openLoginIframe('/signup'));
+        console.log('[initLoginOptionsUI] 버튼 요소들:', {
+            btnKakao: !!btnKakao,
+            btnNaver: !!btnNaver, 
+            btnGoogle: !!btnGoogle,
+            btnEmailLogin: !!btnEmailLogin,
+            btnEmailSignup: !!btnEmailSignup,
+            btnGuest: !!btnGuest
+        });
+
+        on(btnEmailLogin, 'click', () => {
+            console.log('[login] 이메일 로그인 버튼 클릭됨');
+            openLoginIframe('/login');
+        });
+        on(btnEmailSignup, 'click', () => {
+            console.log('[login] 이메일 회원가입 버튼 클릭됨');
+            openLoginIframe('/signup');
+        });
         on(btnGuest, 'click', () => {
+            console.log('[login] 둘러보기 버튼 클릭됨 - 메인으로 복귀');
             // 옵션 닫고 메인으로 복귀
             if (loginView) {
                 loginView.classList.remove('visible');
                 loginView.classList.add('hidden');
+                console.log('[login] loginView 숨김 처리됨');
             }
             if (analysisView) analysisView.classList.add('hidden');
             if (shopView) shopView.classList.add('hidden');
             if (menuView) menuView.classList.add('hidden');
-            if (pageView) pageView.classList.remove('hidden');
+            if (pageView) {
+                pageView.classList.remove('hidden');
+                console.log('[login] pageView 표시됨 - 메인 화면 복귀');
+            }
         });
+        
         // 소셜 버튼은 추후 연동
-        on(btnKakao, 'click', () => alert('카카오 로그인은 추후 연동됩니다.'));
-        on(btnNaver, 'click', () => alert('네이버 로그인은 추후 연동됩니다.'));
-        on(btnGoogle, 'click', () => alert('구글 로그인은 추후 연동됩니다.'));
+        on(btnKakao, 'click', () => {
+            console.log('[login] 카카오 버튼 클릭됨');
+            alert('카카오 로그인은 추후 연동됩니다.');
+        });
+        on(btnNaver, 'click', () => {
+            console.log('[login] 네이버 버튼 클릭됨');
+            alert('네이버 로그인은 추후 연동됩니다.');
+        });
+        on(btnGoogle, 'click', () => {
+            console.log('[login] 구글 버튼 클릭됨');
+            alert('구글 로그인은 추후 연동됩니다.');
+        });
+        
+        console.log('[initLoginOptionsUI] 로그인 옵션 버튼 바인딩 완료');
     })();
 
     // 다른 컨텍스트(iframe 등)에서 세션 변경 시 UI 동기화
