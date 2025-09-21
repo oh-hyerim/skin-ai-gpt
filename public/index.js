@@ -189,7 +189,29 @@ onReady(() => {
                 window.location.href = '/';
             });
         } else {
-            clone.addEventListener('click', () => openLoginOptions());
+            clone.addEventListener('click', () => {
+                console.log('[login] 로그인 버튼 클릭됨');
+                const loginOptions = document.getElementById('loginOptions');
+                const loginFrame = document.getElementById('loginFrame');
+                const app = document.querySelector('.app');
+                const pageView = document.getElementById('pageView');
+                const shopView = document.getElementById('shopView');
+                const analysisView = document.getElementById('analysisView');
+                const menuView = document.getElementById('menuView');
+                const loginView = document.getElementById('loginView');
+
+                if (loginFrame) { loginFrame.classList.add('hidden'); loginFrame.src=''; }
+                if (loginOptions) loginOptions.classList.remove('hidden');
+                if (app) app.classList.remove('analysis-mode');
+                if (pageView) pageView.classList.add('hidden');
+                if (shopView) shopView.classList.add('hidden');
+                if (analysisView) analysisView.classList.add('hidden');
+                if (menuView) menuView.classList.add('hidden');
+                if (loginView) { 
+                    loginView.classList.remove('hidden'); 
+                    loginView.classList.add('visible'); 
+                }
+            });
         }
     }
 
@@ -293,16 +315,7 @@ onReady(() => {
     // 로그인 버튼/세션 기반 UI 초기 바인딩
     updateAuthUI();
 
-    // [로그인 버튼] 존재 시에만 /login 이동 (아이디/클래스 지원)
-    const loginBtnBasic = document.getElementById('loginBtn') || document.querySelector('.login-btn');
-    if (loginBtnBasic) {
-        loginBtnBasic.addEventListener('click', (e) => {
-            if (e && e.preventDefault) e.preventDefault();
-            // const cb = encodeURIComponent(location.pathname + location.search);
-            // location.assign(`/login?callbackUrl=${cb}`);
-            location.assign('/login');
-        });
-    }
+    // [로그인 버튼] 바인딩은 bindLoginButton()에서 처리됨
 
     // iframe(Next.js)에서 로그인 완료 브로드캐스트 수신 → 즉시 UI 동기화
     window.addEventListener('message', (e) => {
@@ -1506,23 +1519,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = base + destPath;
     }
 
-    // 메뉴 화면 상단 로그인 버튼 → 로그인 옵션 화면 열기
-    if (loginBtn) {
-        const clone = loginBtn.cloneNode(true);
-        loginBtn.parentNode.replaceChild(clone, loginBtn);
-
-        clone.addEventListener('click', () => {
-            const loginOptions = document.getElementById('loginOptions');
-            if (loginFrame) { loginFrame.classList.add('hidden'); loginFrame.src=''; }
-            if (loginOptions) loginOptions.classList.remove('hidden');
-            if (app) app.classList.remove('analysis-mode');
-            if (pageView) pageView.classList.add('hidden');
-            if (shopView) shopView.classList.add('hidden');
-            if (analysisView) analysisView.classList.add('hidden');
-            if (menuView) menuView.classList.add('hidden');
-            if (loginView) { loginView.classList.remove('hidden'); loginView.classList.add('visible'); }
-        });
-    }
+    // 메뉴 화면 상단 로그인 버튼은 bindLoginButton()에서 처리됨
 
     if (loginClose && loginView) {
         loginClose.addEventListener('click', () => {
