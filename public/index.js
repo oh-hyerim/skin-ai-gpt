@@ -642,7 +642,10 @@ onReady(() => {
         ctx.stroke();
     }
 
+    // HTML에 <div id="recordDates"></div> 가 반드시 있어야 합니다.
     function setDatesWindow(offsetDays) {
+        const recordDates = document.getElementById("recordDates");
+        if (!recordDates) return;
         const base = new Date();
         base.setDate(base.getDate() + offsetDays);
         const labels = [];
@@ -1680,7 +1683,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.stroke();
     }
 
+    // HTML에 <div id="recordDates"></div> 가 반드시 있어야 합니다.
     function setDatesWindow(offsetDays) {
+        const recordDates = document.getElementById("recordDates");
+        if (!recordDates) return;
         const base = new Date();
         base.setDate(base.getDate() + offsetDays);
         const labels = [];
