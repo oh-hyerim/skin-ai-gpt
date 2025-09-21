@@ -13,6 +13,12 @@ const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 const on = (el, type, handler, opts) => { if (el) el.addEventListener(type, handler, opts); };
 
+// 편집 중인 아이템의 인덱스 (없으면 null)
+let editingIndex = null;
+
+// 알람 UI 초기화 중복 방지
+let alarmInitDone = false;
+
 onReady(() => {
     function openCard() {
         const card = document.getElementById('skinCard');
@@ -916,8 +922,8 @@ onReady(() => {
     return;
   }
 
-  // 현재 편집 중인 알람 인덱스 (신규는 null)
-  let editingIndex = null;
+  // 동일 초기화 중복 방지
+  if (alarmInitDone) return; alarmInitDone = true;
 
   // 로컬스토리지 키
   const KEY = 'alarms';
@@ -1004,12 +1010,19 @@ onReady(() => {
     alarmFormView.classList.remove('hidden');
   }
 
-  // 수정 폼 열기
+  // 수정 폼 열기 (가드 추가)
   function openFormForEdit(index){
+    if (typeof index !== 'number' || index < 0) {
+      editingIndex = null;
+      fillForm(null);
+      saveBtn.textContent = '저장';
+      alarmView.classList.add('hidden');
+      alarmFormView.classList.remove('hidden');
+      return;
+    }
     const list = loadAlarms();
-    const a = list && typeof index==='number' ? list[index] : null;
+    const a = list ? list[index] : null;
     if(!a){
-      // 데이터가 없으면 신규 형태로
       editingIndex = null;
       fillForm(null);
       saveBtn.textContent = '저장';
@@ -1028,6 +1041,10 @@ onReady(() => {
   // 취소 버튼 → 리스트로 복귀 (요소 존재 시에만 바인딩)
   if (cancelBtn && alarmFormView && alarmView) {
     cancelBtn.addEventListener('click', () => {
+      // 편집 모드 취소 → 상태 및 폼 초기화
+      editingIndex = null;
+      const formEl = alarmFormView.querySelector('form');
+      try { if (formEl) formEl.reset(); } catch(_) {}
       alarmFormView.classList.add('hidden');
       alarmView.classList.remove('hidden');
     });
@@ -1035,14 +1052,17 @@ onReady(() => {
     console.warn('[alarm] cancelBtn/alarmFormView/alarmView 요소를 찾지 못했습니다.');
   }
 
-  // AM/PM 토글: 폼 래퍼 위임
-  alarmFormView.addEventListener('click', (e) => {
-    const btn = e.target.closest('.ampm-btn');
-    if (!btn) return;
-    const group = btn.parentElement;
-    group.querySelectorAll('.ampm-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  });
+  // AM/PM 토글: 폼 래퍼 위임 (존재 시 등록)
+  if (alarmFormView) {
+    alarmFormView.addEventListener('click', (e) => {
+      const btn = e.target.closest('.ampm-btn');
+      if (!btn) return;
+      const group = btn.parentElement;
+      if (!group) return;
+      group.querySelectorAll('.ampm-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  }
 
   // 숫자만 입력
   alarmFormView.querySelectorAll('.time-num').forEach(inp => {
@@ -1061,8 +1081,7 @@ onReady(() => {
     b.classList.toggle('active');
   }));
 
-  // 저장/수정 공통 처리
-  saveBtn.addEventListener('click', () => {
+  function saveAlarm(){
     const s = toMinutes('start');
     const e = toMinutes('end');
     let diff = e.minutes - s.minutes;
@@ -1081,11 +1100,15 @@ onReady(() => {
     if(editingIndex===null){ arr.push(data); } else { arr[editingIndex]=data; }
     saveAlarms(arr);
 
-    // 폼 닫고 리스트 렌더
+    // 저장 후 상태 초기화 및 전환
+    editingIndex = null;
     alarmFormView.classList.add('hidden');
     alarmView.classList.remove('hidden');
     renderAlarms();
-  });
+  }
+
+  // 저장/수정 공통 처리
+  if (saveBtn) saveBtn.addEventListener('click', saveAlarm);
 
   // 초기 렌더
   renderAlarms();
