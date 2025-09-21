@@ -13,6 +13,8 @@ const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 const on = (el, type, handler, opts) => { if (el) el.addEventListener(type, handler, opts); };
 
+function log(...args){ try{ console.log(...args);}catch{} }
+
 // 편집 중인 아이템의 인덱스 (없으면 null)
 let editingIndex = null;
 
@@ -121,27 +123,8 @@ onReady(() => {
         openLoginIframe(path || '/login');
     }
 
-    function openLoginOptions(){
-        if (app) app.classList.remove('analysis-mode');
-        if (pageView) pageView.classList.add('hidden');
-        if (shopView) shopView.classList.add('hidden');
-        if (analysisView) analysisView.classList.add('hidden');
-        if (menuView) menuView.classList.add('hidden');
-        if (loginView) {
-            const loginOptions = document.getElementById('loginOptions');
-            const loginFrame = document.getElementById('loginFrame');
-            if (loginFrame) {
-                loginFrame.classList.add('hidden');
-                loginFrame.src = '';
-            }
-            if (loginOptions) {
-                loginOptions.classList.remove('hidden');
-                loginOptions.style.display = 'block';
-            }
-            loginView.classList.remove('hidden');
-            loginView.classList.add('visible');
-        }
-    }
+    // openLoginOptions 함수는 라우팅 방식으로 대체됨
+    // function openLoginOptions() { ... }
 
     function openLoginIframe(path){
         const { base } = resolveNextBase();
@@ -175,68 +158,33 @@ onReady(() => {
         }
     }
 
-    function bindLoginButton(){
-        const btn = document.getElementById('loginBtn');
-        if (!btn) {
-            console.debug('[bindLoginButton] #loginBtn 요소를 찾을 수 없음');
-            return;
-        }
-        console.log('[bindLoginButton] #loginBtn 바인딩 시작');
-        
-        // 기존 리스너 제거를 위해 클론 교체
-        const clone = btn.cloneNode(true);
-        btn.parentNode.replaceChild(clone, btn);
-        const entry = readSupabaseSession();
-		const backupEmail = getBackupEmail();
-		const isLoggedIn = !!(entry && entry.session && entry.session.user) || !!backupEmail;
-        clone.textContent = isLoggedIn ? '로그아웃' : '로그인';
-        
-        if (isLoggedIn) {
-            clone.addEventListener('click', () => {
-                console.log('[login] 로그아웃 버튼 클릭됨');
-                clearSupabaseSessions();
-				clearBackupEmail();
-                window.location.href = '/';
-            });
-        } else {
-            clone.addEventListener('click', () => {
-                console.log('[login] 로그인 버튼 클릭됨 - 옵션 화면 열기');
-                const loginOptions = document.getElementById('loginOptions');
-                const loginFrame = document.getElementById('loginFrame');
-                const app = document.querySelector('.app');
-                const pageView = document.getElementById('pageView');
-                const shopView = document.getElementById('shopView');
-                const analysisView = document.getElementById('analysisView');
-                const menuView = document.getElementById('menuView');
-                const loginView = document.getElementById('loginView');
+    function bindLoginButton() {
+        const btn = $('#loginBtn') || $('.login-btn');
+        log('[bindLoginButton] 대상:', btn ? 'FOUND' : 'NOT FOUND');
 
-                // iframe 숨기고 옵션 표시
-                if (loginFrame) { 
-                    loginFrame.classList.add('hidden'); 
-                    loginFrame.src=''; 
-                }
-                if (loginOptions) {
-                    loginOptions.classList.remove('hidden');
-                    loginOptions.style.display = 'block';
-                    console.log('[login] loginOptions 표시됨');
-                }
-                
-                // 다른 뷰들 숨기기
-                if (app) app.classList.remove('analysis-mode');
-                if (pageView) pageView.classList.add('hidden');
-                if (shopView) shopView.classList.add('hidden');
-                if (analysisView) analysisView.classList.add('hidden');
-                if (menuView) menuView.classList.add('hidden');
-                
-                // 로그인 뷰 표시
-                if (loginView) { 
-                    loginView.classList.remove('hidden'); 
-                    loginView.classList.add('visible');
-                    console.log('[login] loginView 표시됨');
-                }
-            });
-        }
-        console.log('[bindLoginButton] 바인딩 완료, 로그인 상태:', isLoggedIn);
+        if (!btn) return;
+
+        // 중복 바인딩 제거: 기존 핸들러 제거 후 새로 등록
+        const cloned = btn.cloneNode(true);
+        btn.parentNode.replaceChild(cloned, btn);
+        const loginBtn = cloned;
+
+        loginBtn.addEventListener('click', (e)=>{
+            e.preventDefault?.();
+            log('[login] 버튼 클릭됨');
+
+            // 혹시 다른 코드가 열어두는 오버레이/옵션을 강제로 닫음
+            document.querySelectorAll('.overlay,.sheet,.options,.option-view,.menu-drawer')
+                .forEach(el => el.classList?.add('hidden'));
+
+            // SPA 전환을 쓰지 않고, 라우팅으로 /login 이동을 강제
+            const cb = encodeURIComponent(location.pathname + location.search);
+            const target = `/login?callbackUrl=${cb}`;
+            log('[login] 라우팅 이동 시작:', target);
+            location.assign(target);
+        }, { once: true });
+
+        log('[bindLoginButton] 바인딩 완료');
     }
 
 	function bindSettingsAuthButtons(){
@@ -270,8 +218,14 @@ onReady(() => {
             signupBtnNew.style.display = '';
 			loginBtnNew.style.display = '';
 			loginBtnNew.textContent = '로그인';
-            loginBtnNew.addEventListener('click', () => openLoginOptions());
-            signupBtnNew.addEventListener('click', () => openLoginOptions());
+            loginBtnNew.addEventListener('click', () => {
+                log('[settings] 설정 로그인 버튼 클릭 - /login으로 이동');
+                location.assign('/login');
+            });
+            signupBtnNew.addEventListener('click', () => {
+                log('[settings] 설정 회원가입 버튼 클릭 - /login으로 이동');
+                location.assign('/login');
+            });
 			if (settingsEmailEl) {
 				settingsEmailEl.textContent = '';
 				settingsEmailEl.style.display = 'none';
@@ -465,35 +419,10 @@ onReady(() => {
         }
     }
 
-    // 배경화면 메뉴 아이콘의 로그인 버튼과 연결 + 뷰 전환
-    (function(){
-        const $ = (sel, root=document) => root.querySelector(sel);
-
-        // 공통 뷰 전환(싱글 페이지 전환이 필요한 경우 사용)
-        function showView(targetId){
-            document.querySelectorAll('main').forEach(m => m.classList?.add('hidden'));
-            const t = document.getElementById(targetId);
-            if (t) t.classList.remove('hidden');
-        }
-
-        // 배경화면의 로그인 버튼(id 또는 class)을 찾아 연결
-        const loginBtn = $('#loginBtn') || $('.login-btn');
-        if (loginBtn) {
-            loginBtn.addEventListener('click', (e)=>{
-                e.preventDefault?.();
-                // 배경화면 숨김(해당 뷰가 존재할 때만)
-                const home = document.getElementById('homeView');
-                home?.classList.add('hidden');
-                // /login 페이지로 이동
-                location.assign('/login');
-            });
-        } else {
-            console.debug('[login] 로그인 버튼을 찾지 못했음(#loginBtn 또는 .login-btn).');
-        }
-
-        // (선택) /login에서 홈으로 돌아오는 SPA 방식 지원이 필요하면,
-        // location.pathname === '/login' 인 경우엔 페이지 내에서 처리하고,
-        // 그렇지 않으면 라우팅으로 처리한다.
+    // 최초 실행 지점(중복 실행 방지)
+    (function initLoginWiring(){
+        log('[initLoginWiring] 시작, path=', location.pathname);
+        bindLoginButton();
     })();
 
     // 다른 컨텍스트(iframe 등)에서 세션 변경 시 UI 동기화
@@ -591,7 +520,10 @@ onReady(() => {
            app.classList.remove('analysis-mode');
            if (analysisButtons) analysisButtons.style.display = 'none';
            // 메뉴 화면으로 전환되면 로그인 버튼 재바인딩
-           setTimeout(() => bindLoginButton(), 100);
+           setTimeout(() => {
+               log('[menu] 메뉴 전환 후 로그인 버튼 재바인딩');
+               bindLoginButton();
+           }, 100);
         } else {
             app.classList.remove('analysis-mode');
             analysisView.classList.add('hidden');
@@ -1743,7 +1675,10 @@ document.addEventListener('DOMContentLoaded', () => {
            analysisView.classList.add('hidden');
            app.classList.remove('analysis-mode');
            // 메뉴 화면으로 전환되면 로그인 버튼 재바인딩
-           setTimeout(() => bindLoginButton(), 100);
+           setTimeout(() => {
+               log('[menu] 메뉴 전환 후 로그인 버튼 재바인딩 (하단)');
+               bindLoginButton();
+           }, 100);
         } else {
             app.classList.remove('analysis-mode');
             analysisView.classList.add('hidden');
