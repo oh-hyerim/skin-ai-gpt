@@ -49,25 +49,6 @@ export default function Login({ redirectTo }: Props) {
         </button>
         
         <button 
-          id="naverLoginBtn" 
-          onClick={() => alert('네이버 로그인은 준비 중입니다.')} 
-          style={{
-            width:"100%", 
-            height:48, 
-            marginBottom:12, 
-            background:"#03C75A", 
-            color:"#fff", 
-            border:"none", 
-            borderRadius:8,
-            fontSize: 16,
-            fontWeight: 600,
-            cursor: "pointer"
-          }}
-        >
-          네이버로 계속하기
-        </button>
-        
-        <button 
           id="googleLoginBtn" 
           onClick={() => handleSocialLogin('google')} 
           style={{
