@@ -220,11 +220,13 @@ onReady(() => {
 			loginBtnNew.textContent = '로그인';
             loginBtnNew.addEventListener('click', () => {
                 log('[settings] 설정 로그인 버튼 클릭 - /login으로 이동');
-                location.assign('/login');
+                const cb = encodeURIComponent(location.pathname + location.search);
+                location.assign(`/login?callbackUrl=${cb}`);
             });
             signupBtnNew.addEventListener('click', () => {
                 log('[settings] 설정 회원가입 버튼 클릭 - /login으로 이동');
-                location.assign('/login');
+                const cb = encodeURIComponent(location.pathname + location.search);
+                location.assign(`/login?callbackUrl=${cb}`);
             });
 			if (settingsEmailEl) {
 				settingsEmailEl.textContent = '';
