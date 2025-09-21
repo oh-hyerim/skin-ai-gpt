@@ -117,8 +117,33 @@ onReady(() => {
 	}
 
     function openLoginOverlay(path){
+        // 과거 호환: 직접 특정 경로를 띄우고자 할 때는 iframe 모드로 전환
+        openLoginIframe(path || '/login');
+    }
+
+    function openLoginOptions(){
+        if (app) app.classList.remove('analysis-mode');
+        if (pageView) pageView.classList.add('hidden');
+        if (shopView) shopView.classList.add('hidden');
+        if (analysisView) analysisView.classList.add('hidden');
+        if (menuView) menuView.classList.add('hidden');
+        if (loginView) {
+            const loginOptions = document.getElementById('loginOptions');
+            const loginFrame = document.getElementById('loginFrame');
+            if (loginFrame) {
+                loginFrame.classList.add('hidden');
+                loginFrame.src = '';
+            }
+            if (loginOptions) loginOptions.classList.remove('hidden');
+            loginView.classList.remove('hidden');
+            loginView.classList.add('visible');
+        }
+    }
+
+    function openLoginIframe(path){
         const { base } = resolveNextBase();
-        if (loginFrame) loginFrame.src = base + (path || '/login');
+        const loginOptions = document.getElementById('loginOptions');
+        if (loginOptions) loginOptions.classList.add('hidden');
         if (app) app.classList.remove('analysis-mode');
         if (pageView) pageView.classList.add('hidden');
         if (shopView) shopView.classList.add('hidden');
@@ -128,22 +153,23 @@ onReady(() => {
             loginView.classList.remove('hidden');
             loginView.classList.add('visible');
         }
-        // iframe 로드 후 자동완성 보정 시도 (동일 출처일 때만)
-        const fix = () => {
-            try {
-                const doc = loginFrame.contentDocument || loginFrame.contentWindow.document;
-                if (!doc) return;
-                const email = doc.querySelector('input[type="email"], input[name*="email" i]');
-                const user = doc.querySelector('input[name="username" i]');
-                const pass = doc.querySelector('input[type="password"], input[name*="password" i]');
-                if (email) email.setAttribute('autocomplete','email');
-                if (user) user.setAttribute('autocomplete','username');
-                if (pass) pass.setAttribute('autocomplete','current-password');
-            } catch (_) {
-                // 교차 출처면 접근 불가 → 무시
-            }
-        };
-        if (loginFrame) loginFrame.addEventListener('load', fix, { once: true });
+        if (loginFrame) {
+            loginFrame.classList.remove('hidden');
+            loginFrame.src = base + (path || '/login');
+            const fix = () => {
+                try {
+                    const doc = loginFrame.contentDocument || loginFrame.contentWindow.document;
+                    if (!doc) return;
+                    const email = doc.querySelector('input[type="email"], input[name*="email" i]');
+                    const user = doc.querySelector('input[name="username" i]');
+                    const pass = doc.querySelector('input[type="password"], input[name*="password" i]');
+                    if (email) email.setAttribute('autocomplete','email');
+                    if (user) user.setAttribute('autocomplete','username');
+                    if (pass) pass.setAttribute('autocomplete','current-password');
+                } catch (_) {}
+            };
+            loginFrame.addEventListener('load', fix, { once: true });
+        }
     }
 
     function bindLoginButton(){
@@ -163,7 +189,7 @@ onReady(() => {
                 window.location.href = '/';
             });
         } else {
-            clone.addEventListener('click', () => openLoginOverlay('/login'));
+            clone.addEventListener('click', () => openLoginOptions());
         }
     }
 
@@ -198,8 +224,8 @@ onReady(() => {
             signupBtnNew.style.display = '';
 			loginBtnNew.style.display = '';
 			loginBtnNew.textContent = '로그인';
-            loginBtnNew.addEventListener('click', () => openLoginOverlay('/login'));
-            signupBtnNew.addEventListener('click', () => openLoginOverlay('/signup'));
+            loginBtnNew.addEventListener('click', () => openLoginOptions());
+            signupBtnNew.addEventListener('click', () => openLoginOptions());
 			if (settingsEmailEl) {
 				settingsEmailEl.textContent = '';
 				settingsEmailEl.style.display = 'none';
@@ -267,6 +293,17 @@ onReady(() => {
     // 로그인 버튼/세션 기반 UI 초기 바인딩
     updateAuthUI();
 
+    // [로그인 버튼] 존재 시에만 /login 이동 (아이디/클래스 지원)
+    const loginBtnBasic = document.getElementById('loginBtn') || document.querySelector('.login-btn');
+    if (loginBtnBasic) {
+        loginBtnBasic.addEventListener('click', (e) => {
+            if (e && e.preventDefault) e.preventDefault();
+            // const cb = encodeURIComponent(location.pathname + location.search);
+            // location.assign(`/login?callbackUrl=${cb}`);
+            location.assign('/login');
+        });
+    }
+
     // iframe(Next.js)에서 로그인 완료 브로드캐스트 수신 → 즉시 UI 동기화
     window.addEventListener('message', (e) => {
 		try {
@@ -295,11 +332,13 @@ onReady(() => {
 
     if (loginClose && loginView) {
         loginClose.addEventListener('click', () => {
+            const loginOptions = document.getElementById('loginOptions');
             loginView.classList.remove('visible');
             loginView.classList.add('hidden');
-            loginFrame.src = '';
+            if (loginFrame) { loginFrame.src = ''; loginFrame.classList.add('hidden'); }
+            if (loginOptions) loginOptions.classList.remove('hidden');
             // 기본 배경 복귀: 메인 페이지 뷰 표시
-            pageView.classList.remove('hidden');
+            if (pageView) pageView.classList.remove('hidden');
             // 오버레이 닫힐 때 세션 상태 반영
             updateAuthUI();
         });
@@ -307,6 +346,36 @@ onReady(() => {
 
     // 설정 화면 버튼은 세션 상태에 따라 동적으로 바인딩됨
     bindSettingsAuthButtons();
+
+    // 로그인 옵션 버튼 초기화
+    (function initLoginOptionsUI(){
+        const opts = document.getElementById('loginOptions');
+        if (!opts) return;
+        const btnKakao = document.getElementById('btnKakao');
+        const btnNaver = document.getElementById('btnNaver');
+        const btnGoogle = document.getElementById('btnGoogle');
+        const btnEmailLogin = document.getElementById('btnEmailLogin');
+        const btnEmailSignup = document.getElementById('btnEmailSignup');
+        const btnGuest = document.getElementById('btnGuest');
+
+        on(btnEmailLogin, 'click', () => openLoginIframe('/login'));
+        on(btnEmailSignup, 'click', () => openLoginIframe('/signup'));
+        on(btnGuest, 'click', () => {
+            // 옵션 닫고 메인으로 복귀
+            if (loginView) {
+                loginView.classList.remove('visible');
+                loginView.classList.add('hidden');
+            }
+            if (analysisView) analysisView.classList.add('hidden');
+            if (shopView) shopView.classList.add('hidden');
+            if (menuView) menuView.classList.add('hidden');
+            if (pageView) pageView.classList.remove('hidden');
+        });
+        // 소셜 버튼은 추후 연동
+        on(btnKakao, 'click', () => alert('카카오 로그인은 추후 연동됩니다.'));
+        on(btnNaver, 'click', () => alert('네이버 로그인은 추후 연동됩니다.'));
+        on(btnGoogle, 'click', () => alert('구글 로그인은 추후 연동됩니다.'));
+    })();
 
     // 다른 컨텍스트(iframe 등)에서 세션 변경 시 UI 동기화
     window.addEventListener('storage', (e)=>{
@@ -411,45 +480,61 @@ onReady(() => {
         }
     });
 
-    // 내부 분석 네비 활성화 토글
-    document.addEventListener('click', (e)=>{
+    // 분석 네비: 널가드 + 캐싱 적용
+    function hideAllAnalysis() {
+        recordView?.classList.add('hidden');
+        document.getElementById('routineView')?.classList.add('hidden');
+        document.getElementById('productView')?.classList.add('hidden');
+        shopView?.classList.add('hidden');
+    }
+
+    document.addEventListener('click', (e) => {
         const b = e.target.closest('.analysis-nav-btn');
         if (!b) return;
-        document.querySelectorAll('.analysis-nav-btn').forEach(x=>x.classList.remove('active'));
-        b.classList.add('active');
-        // 서브뷰 전환: 기록 버튼이면 기록 화면만 보이게
-        if (b.textContent === '기록') {
-            recordView.classList.remove('hidden');
-            // 분석 버튼들은 숨김
-            document.querySelector('.analysis-buttons').style.display = 'none';
-            document.getElementById('routineView').classList.add('hidden');
-        } else {
-            recordView.classList.add('hidden');
-            if (b.textContent === '루틴') {
-                document.getElementById('routineView').classList.remove('hidden');
-                document.getElementById('productView').classList.add('hidden');
-                document.querySelector('.analysis-buttons').style.display = 'none';
-            } else {
-                document.getElementById('routineView').classList.add('hidden');
-                if(b.textContent==='내 제품'){
-                  document.getElementById('productView').classList.remove('hidden');
-                  document.getElementById('shopView').classList.add('hidden');
-                  document.querySelector('.analysis-buttons').style.display='none';
-                } else {
-                  if(b.textContent==='상점'){
-                     document.getElementById('shopView').classList.remove('hidden');
-                     document.getElementById('productView').classList.add('hidden');
-                     document.getElementById('routineView').classList.add('hidden');
-                     recordView.classList.add('hidden');
-                     document.querySelector('.analysis-buttons').style.display='none';
-                  } else {
-                     document.getElementById('shopView').classList.add('hidden');
-                  }
-                  document.getElementById('productView').classList.add('hidden');
-                  document.querySelector('.analysis-buttons').style.display='flex';
-                }
-            }
+
+        document.querySelectorAll('.analysis-nav-btn').forEach(x => x.classList?.remove('active'));
+        b.classList?.add('active');
+
+        const routineViewEl = document.getElementById('routineView');
+        const productViewEl = document.getElementById('productView');
+        const analysisBtns = document.querySelector('.analysis-buttons');
+        if (!recordView && !routineViewEl && !productViewEl && !shopView && !analysisBtns) {
+            console.debug('[analysis] 관련 뷰 없음 — 스킵');
+            return;
         }
+
+        hideAllAnalysis();
+        const label = (b.textContent || '').trim();
+
+        if (label === '기록') {
+            recordView?.classList.remove('hidden');
+            if (analysisBtns) analysisBtns.style.display = 'none';
+            return;
+        }
+        if (label === '루틴') {
+            routineViewEl?.classList.remove('hidden');
+            productViewEl?.classList.add('hidden');
+            if (analysisBtns) analysisBtns.style.display = 'none';
+            return;
+        }
+        if (label === '내 제품') {
+            productViewEl?.classList.remove('hidden');
+            shopView?.classList.add('hidden');
+            if (analysisBtns) analysisBtns.style.display = 'none';
+            return;
+        }
+        if (label === '상점') {
+            shopView?.classList.remove('hidden');
+            productViewEl?.classList.add('hidden');
+            routineViewEl?.classList.add('hidden');
+            recordView?.classList.add('hidden');
+            if (analysisBtns) analysisBtns.style.display = 'none';
+            return;
+        }
+
+        // 그 외: 분석 버튼 패널 노출
+        productViewEl?.classList.add('hidden');
+        if (analysisBtns) analysisBtns.style.display = 'flex';
     });
 
     function saveCount() {
@@ -1035,8 +1120,7 @@ onReady(() => {
     alarmFormView.classList.remove('hidden');
   }
 
-  // 추가 버튼 → 신규 폼
-  if(addBtn){ addBtn.addEventListener('click', openFormNew); }
+  // 추가 버튼 → 상단 공용 가드 바인딩으로 대체됨
 
   // 취소 버튼 → 리스트로 복귀 (요소 존재 시에만 바인딩)
   if (cancelBtn && alarmFormView && alarmView) {
@@ -1109,6 +1193,22 @@ onReady(() => {
 
   // 저장/수정 공통 처리
   if (saveBtn) saveBtn.addEventListener('click', saveAlarm);
+
+  // [알람 화면 추가 버튼] 존재 시에만 폼 열기 (아이디/클래스 지원)
+  const alarmAddBtn = document.getElementById('alarmAddBtn') || document.querySelector('.alarm-add-btn') || document.querySelector('.alarm-add');
+  const alarmFormViewEl = document.getElementById('alarmFormView');
+  const alarmViewEl = document.getElementById('alarmView');
+  if (alarmAddBtn) alarmAddBtn.addEventListener('click', (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!alarmFormViewEl || !alarmViewEl) {
+      console.debug('[alarm] alarmFormView/alarmView 없음 — 스킵');
+      return;
+    }
+    alarmViewEl.classList.add('hidden');
+    alarmFormViewEl.classList.remove('hidden');
+    const formEl = alarmFormViewEl.querySelector('form');
+    try { if (formEl) formEl.reset(); } catch(_) {}
+  });
 
   // 초기 렌더
   renderAlarms();
@@ -1406,14 +1506,21 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = base + destPath;
     }
 
-    // 메뉴 화면 상단 로그인 버튼 → 로그인 오버레이 열기
+    // 메뉴 화면 상단 로그인 버튼 → 로그인 옵션 화면 열기
     if (loginBtn) {
-        // 기존 리스너 제거를 위해 클론 교체
         const clone = loginBtn.cloneNode(true);
         loginBtn.parentNode.replaceChild(clone, loginBtn);
-        
+
         clone.addEventListener('click', () => {
-            openLoginOverlay('/login');
+            const loginOptions = document.getElementById('loginOptions');
+            if (loginFrame) { loginFrame.classList.add('hidden'); loginFrame.src=''; }
+            if (loginOptions) loginOptions.classList.remove('hidden');
+            if (app) app.classList.remove('analysis-mode');
+            if (pageView) pageView.classList.add('hidden');
+            if (shopView) shopView.classList.add('hidden');
+            if (analysisView) analysisView.classList.add('hidden');
+            if (menuView) menuView.classList.add('hidden');
+            if (loginView) { loginView.classList.remove('hidden'); loginView.classList.add('visible'); }
         });
     }
 
@@ -1435,12 +1542,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const settingsSignupBtn = btns[1];
         if (settingsLoginBtn) {
             settingsLoginBtn.addEventListener('click', () => {
-                openLoginOverlay('/login');
+                const loginOptions = document.getElementById('loginOptions');
+                if (loginFrame) { loginFrame.classList.add('hidden'); loginFrame.src=''; }
+                if (loginOptions) loginOptions.classList.remove('hidden');
+                if (app) app.classList.remove('analysis-mode');
+                if (pageView) pageView.classList.add('hidden');
+                if (shopView) shopView.classList.add('hidden');
+                if (analysisView) analysisView.classList.add('hidden');
+                if (menuView) menuView.classList.add('hidden');
+                if (loginView) { loginView.classList.remove('hidden'); loginView.classList.add('visible'); }
             });
         }
         if (settingsSignupBtn) {
             settingsSignupBtn.addEventListener('click', () => {
-                openLoginOverlay('/signup');
+                const loginOptions = document.getElementById('loginOptions');
+                if (loginFrame) { loginFrame.classList.add('hidden'); loginFrame.src=''; }
+                if (loginOptions) loginOptions.classList.remove('hidden');
+                if (app) app.classList.remove('analysis-mode');
+                if (pageView) pageView.classList.add('hidden');
+                if (shopView) shopView.classList.add('hidden');
+                if (analysisView) analysisView.classList.add('hidden');
+                if (menuView) menuView.classList.add('hidden');
+                if (loginView) { loginView.classList.remove('hidden'); loginView.classList.add('visible'); }
             });
         }
     }
@@ -2019,7 +2142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     alarmFormView.classList.remove('hidden');
   }
 
-  if(addBtn){ addBtn.addEventListener('click', openFormNew); }
+  
 
   if (cancelBtn && alarmFormView && alarmView) {
     cancelBtn.addEventListener('click', () => {
