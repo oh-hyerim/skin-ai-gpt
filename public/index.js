@@ -1,3 +1,8 @@
+// 요구 HTML:
+// <button id="alarmCancelBtn" class="alarm-cancel">취소</button>
+// <div id="alarmFormView">…</div>
+// <div id="alarmView" class="hidden">…</div>
+
 function onReady(fn){
     if (document.readyState !== 'loading') { fn(); }
     else { document.addEventListener('DOMContentLoaded', fn); }
@@ -1013,11 +1018,15 @@ onReady(() => {
   // 추가 버튼 → 신규 폼
   if(addBtn){ addBtn.addEventListener('click', openFormNew); }
 
-  // 취소 버튼 → 리스트로 복귀
-  cancelBtn.addEventListener('click', () => {
-    alarmFormView.classList.add('hidden');
-    alarmView.classList.remove('hidden');
-  });
+  // 취소 버튼 → 리스트로 복귀 (요소 존재 시에만 바인딩)
+  if (cancelBtn && alarmFormView && alarmView) {
+    cancelBtn.addEventListener('click', () => {
+      alarmFormView.classList.add('hidden');
+      alarmView.classList.remove('hidden');
+    });
+  } else {
+    console.warn('[alarm] cancelBtn/alarmFormView/alarmView 요소를 찾지 못했습니다.');
+  }
 
   // AM/PM 토글
   alarmFormView.addEventListener('click', (e) => {
@@ -1964,10 +1973,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if(addBtn){ addBtn.addEventListener('click', openFormNew); }
 
-  cancelBtn.addEventListener('click', () => {
-    alarmFormView.classList.add('hidden');
-    alarmView.classList.remove('hidden');
-  });
+  if (cancelBtn && alarmFormView && alarmView) {
+    cancelBtn.addEventListener('click', () => {
+      alarmFormView.classList.add('hidden');
+      alarmView.classList.remove('hidden');
+    });
+  } else {
+    console.warn('[alarm] cancelBtn/alarmFormView/alarmView 요소를 찾지 못했습니다.');
+  }
 
   alarmFormView.addEventListener('click', (e) => {
     const btn = e.target.closest('.ampm-btn');
