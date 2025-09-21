@@ -134,7 +134,10 @@ onReady(() => {
                 loginFrame.classList.add('hidden');
                 loginFrame.src = '';
             }
-            if (loginOptions) loginOptions.classList.remove('hidden');
+            if (loginOptions) {
+                loginOptions.classList.remove('hidden');
+                loginOptions.style.display = 'block';
+            }
             loginView.classList.remove('hidden');
             loginView.classList.add('visible');
         }
@@ -143,7 +146,7 @@ onReady(() => {
     function openLoginIframe(path){
         const { base } = resolveNextBase();
         const loginOptions = document.getElementById('loginOptions');
-        if (loginOptions) loginOptions.classList.add('hidden');
+        if (loginOptions) loginOptions.style.display = 'none';
         if (app) app.classList.remove('analysis-mode');
         if (pageView) pageView.classList.add('hidden');
         if (shopView) shopView.classList.add('hidden');
@@ -214,6 +217,7 @@ onReady(() => {
                 }
                 if (loginOptions) {
                     loginOptions.classList.remove('hidden');
+                    loginOptions.style.display = 'block';
                     console.log('[login] loginOptions 표시됨');
                 }
                 
@@ -369,7 +373,10 @@ onReady(() => {
             loginView.classList.remove('visible');
             loginView.classList.add('hidden');
             if (loginFrame) { loginFrame.src = ''; loginFrame.classList.add('hidden'); }
-            if (loginOptions) loginOptions.classList.remove('hidden');
+            if (loginOptions) {
+                loginOptions.classList.remove('hidden');
+                loginOptions.style.display = 'block';
+            }
             // 기본 배경 복귀: 메인 페이지 뷰 표시
             if (pageView) pageView.classList.remove('hidden');
             // 오버레이 닫힐 때 세션 상태 반영
@@ -407,10 +414,12 @@ onReady(() => {
 
         on(btnEmailLogin, 'click', () => {
             console.log('[login] 이메일 로그인 버튼 클릭됨');
+            if (loginOptions) loginOptions.style.display = 'none';
             openLoginIframe('/login');
         });
         on(btnEmailSignup, 'click', () => {
             console.log('[login] 이메일 회원가입 버튼 클릭됨');
+            if (loginOptions) loginOptions.style.display = 'none';
             openLoginIframe('/signup');
         });
         on(btnGuest, 'click', () => {
@@ -1601,7 +1610,10 @@ document.addEventListener('DOMContentLoaded', () => {
             settingsLoginBtn.addEventListener('click', () => {
                 const loginOptions = document.getElementById('loginOptions');
                 if (loginFrame) { loginFrame.classList.add('hidden'); loginFrame.src=''; }
-                if (loginOptions) loginOptions.classList.remove('hidden');
+                if (loginOptions) {
+                loginOptions.classList.remove('hidden');
+                loginOptions.style.display = 'block';
+            }
                 if (app) app.classList.remove('analysis-mode');
                 if (pageView) pageView.classList.add('hidden');
                 if (shopView) shopView.classList.add('hidden');
@@ -1614,7 +1626,10 @@ document.addEventListener('DOMContentLoaded', () => {
             settingsSignupBtn.addEventListener('click', () => {
                 const loginOptions = document.getElementById('loginOptions');
                 if (loginFrame) { loginFrame.classList.add('hidden'); loginFrame.src=''; }
-                if (loginOptions) loginOptions.classList.remove('hidden');
+                if (loginOptions) {
+                loginOptions.classList.remove('hidden');
+                loginOptions.style.display = 'block';
+            }
                 if (app) app.classList.remove('analysis-mode');
                 if (pageView) pageView.classList.add('hidden');
                 if (shopView) shopView.classList.add('hidden');
