@@ -483,6 +483,9 @@ onReady(() => {
            analysisView.classList.add('hidden');
            app.classList.remove('analysis-mode');
             if (analysisButtons) analysisButtons.style.display = 'none';
+            // 메뉴 화면으로 전환 시 로그인 버튼 재바인딩
+            console.log('[menu] 메뉴 화면으로 전환, 로그인 버튼 재바인딩');
+            setTimeout(() => bindLoginButton(), 50);
         } else {
             app.classList.remove('analysis-mode');
             analysisView.classList.add('hidden');
@@ -1626,6 +1629,8 @@ document.addEventListener('DOMContentLoaded', () => {
            shopView.classList.add('hidden');
            analysisView.classList.add('hidden');
            app.classList.remove('analysis-mode');
+           // 메뉴 화면으로 전환 시 로그인 버튼 재바인딩
+           setTimeout(() => bindLoginButton(), 50);
         } else {
             app.classList.remove('analysis-mode');
             analysisView.classList.add('hidden');
