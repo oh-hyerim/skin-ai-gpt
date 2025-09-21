@@ -753,6 +753,7 @@ onReady(() => {
     }
 
     /* ---------- 내 제품 로직 ---------- */
+    // 필수 요소(ID는 HTML과 동일해야 함)
     const productAddBtn = document.getElementById('productAddBtn');
     const productListEl = document.getElementById('productList');
 
@@ -763,6 +764,7 @@ onReady(() => {
 
     function saveProducts() {
         const arr=[];
+        if (!productListEl) return; // 안전 가드
         productListEl.querySelectorAll('.product-card').forEach(card=>{
             arr.push({brand:card.dataset.brand,name:card.dataset.name});
         });
@@ -770,12 +772,14 @@ onReady(() => {
     }
 
     function renderProductCard(brand,name,img){
+        if (!productListEl) return; // 안전 가드
         const card=document.createElement('div');
         card.className='product-card';
         card.dataset.brand=brand;card.dataset.name=name;
         const thumbHtml= img?`<img class="product-thumb" src="${img}">`:`<div class="product-thumb placeholder">＋</div>`;
         card.innerHTML=`${thumbHtml}<h4>${brand}</h4><p>${name}</p><button class="remove">－</button>`;
-        card.querySelector('.remove').addEventListener('click',()=>{
+        const removeBtn = card.querySelector('.remove');
+        if (removeBtn) removeBtn.addEventListener('click',()=>{
             card.remove();
             saveProducts();
         });
@@ -783,6 +787,7 @@ onReady(() => {
     }
 
     function createInputCard(){
+        if (!productListEl) return; // 안전 가드
         const wrap=document.createElement('div');
         wrap.className='product-input';
         wrap.innerHTML=`<label class="img-btn" title="이미지 추가">＋<input type="file" accept="image/*" style="display:none"></label><div class="fields"><input placeholder="브랜드" autocomplete="off"/><input placeholder="제품명" autocomplete="off"/></div><button class="save">저장</button>`;
@@ -790,29 +795,47 @@ onReady(() => {
         const brandI=wrap.querySelector('.fields input:nth-child(1)');
         const nameI=wrap.querySelector('.fields input:nth-child(2)');
         let imgData='';
-        fileInput.addEventListener('change',e=>{
-           const f=e.target.files[0];if(!f)return;
-           const reader=new FileReader();
-           reader.onload=ev=>{imgData=ev.target.result;};
-           reader.readAsDataURL(f);
-        });
-        wrap.querySelector('.save').addEventListener('click',()=>{
-            const b=brandI.value.trim(), n=nameI.value.trim();
+        if (fileInput) {
+            fileInput.addEventListener('change',e=>{
+               const f=e.target.files && e.target.files[0];
+               if(!f)return;
+               const reader=new FileReader();
+               reader.onload=ev=>{imgData=(ev && ev.target && ev.target.result)||'';};
+               reader.readAsDataURL(f);
+            });
+        }
+        const saveBtn = wrap.querySelector('.save');
+        if (saveBtn) saveBtn.addEventListener('click',()=>{
+            const b=(brandI && brandI.value ? brandI.value : '').trim();
+            const n=(nameI && nameI.value ? nameI.value : '').trim();
             if(!b||!n)return;
             renderProductCard(b,n,imgData);
-            saveProducts();
+            (typeof saveProducts === 'function') && saveProducts();
             wrap.remove();
         });
         productListEl.prepend(wrap);
-        brandI.focus();
+        if (brandI) brandI.focus();
     }
 
-    productAddBtn.addEventListener('click',()=>{
-        if(productListEl.querySelector('.product-input'))return;
-        createInputCard();
-    });
+    function initProductUI() {
+        if (!productAddBtn || !productListEl) {
+            console.warn('[product UI] 필수 요소를 찾지 못했습니다. HTML에 #productAddBtn, #productList가 있는지 확인하세요.');
+            return;
+        }
+        productAddBtn.addEventListener('click', () => {
+            if (productListEl.querySelector('.product-input')) return;
+            createInputCard();
+        });
+        // 저장된 데이터 초기 로드
+        if (typeof loadProducts === 'function') loadProducts();
+    }
 
-    loadProducts();
+    // onReady 내에서 DOM이 준비되었으므로 즉시 초기화
+    initProductUI();
+
+    // 요구 HTML:
+    // <button id="productAddBtn">제품 추가</button>
+    // <div id="productList"></div>
 });
 
 onReady(() => {
