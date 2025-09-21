@@ -17,14 +17,12 @@ const handler = NextAuth({
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account?.provider === "google") {
-        // @ts-expect-error add custom field
         token.provider = "google";
       }
       return token;
     },
     async session({ session, token }) {
-      // @ts-expect-error add custom field
-      (session as any).provider = (token as any).provider;
+      session.provider = token.provider;
       return session;
     },
     async redirect({ url, baseUrl }) {
