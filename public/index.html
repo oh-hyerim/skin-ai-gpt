@@ -276,7 +276,24 @@
     <!-- 로그인 오버레이 (Next.js 페이지를 iframe으로 표시) -->
     <div id="loginView" class="login-view hidden">
         <button id="loginClose" class="login-close" aria-label="닫기">×</button>
-        <iframe id="loginFrame" class="login-frame" src="" frameborder="0"></iframe>
+        <div id="loginOptions" class="login-options">
+            <h3 class="login-title">로그인</h3>
+            <div class="login-buttons social">
+                <button id="btnKakao" class="login-btn kakao">카카오로 계속하기</button>
+                <button id="btnNaver" class="login-btn naver">네이버로 계속하기</button>
+                <button id="btnGoogle" class="login-btn google">구글로 계속하기</button>
+            </div>
+            <div class="login-sep"></div>
+            <div class="login-buttons email">
+                <button id="btnEmailLogin" class="login-btn outline">이메일로 로그인하기</button>
+                <button id="btnEmailSignup" class="login-btn outline">이메일로 회원가입하기</button>
+            </div>
+            <div class="login-sep small"></div>
+            <div class="login-buttons etc">
+                <button id="btnGuest" class="login-btn ghost">둘러보기</button>
+            </div>
+        </div>
+        <iframe id="loginFrame" class="login-frame hidden" src="" frameborder="0"></iframe>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js" defer></script>
