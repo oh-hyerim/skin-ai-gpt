@@ -11,9 +11,9 @@
   },
   "dependencies": {
     "@prisma/client": "5.19.1",
-    "@swc/helpers": "^0.5.17",
+    "@swc/helpers": "0.5.13",
     "c12": "^1.6.0",
-    "next": "^14.2.7",
+    "next": "14.2.32",
     "next-auth": "4.24.11",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
