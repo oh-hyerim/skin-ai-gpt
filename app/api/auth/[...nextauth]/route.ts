@@ -12,7 +12,7 @@ const handler = NextAuth({
     }),
   ],
   pages: {
-    // 기본 페이지 사용 (커스텀 페이지는 추후)
+    signIn: "/login",
   },
   callbacks: {
     async jwt({ token, account, profile }) {

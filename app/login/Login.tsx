@@ -30,7 +30,8 @@ export default function Login({ redirectTo }: Props) {
       <div id="loginOptions">
         <h1 style={{textAlign: "center", marginBottom: 32, fontSize: 24, fontWeight: 600}}>로그인</h1>
         
-        <button 
+        {/* 카카오 로그인 비활성화 */}
+        {/* <button 
           id="kakaoLoginBtn" 
           onClick={() => alert('카카오 로그인은 준비 중입니다.')} 
           style={{
@@ -46,7 +47,7 @@ export default function Login({ redirectTo }: Props) {
           }}
         >
           카카오톡으로 계속하기
-        </button>
+        </button> */}
         
         <button 
           id="googleLoginBtn" 
@@ -66,7 +67,8 @@ export default function Login({ redirectTo }: Props) {
           Google로 계속하기
         </button>
         
-        <div style={{
+        {/* 이메일 로그인/회원가입 비활성화 */}
+        {/* <div style={{
           marginTop:16, 
           textAlign: "center",
           borderTop: "1px solid #e8eaed",
@@ -101,7 +103,7 @@ export default function Login({ redirectTo }: Props) {
           >
             이메일로 회원가입
           </button>
-        </div>
+        </div> */}
         
         <div style={{marginTop:24, textAlign: "center"}}>
           <button 
