@@ -12,6 +12,7 @@
   "dependencies": {
     "@prisma/client": "5.19.1",
     "@supabase/supabase-js": "^2.45.0",
+    "@swc/helpers": "^0.5.17",
     "c12": "^1.6.0",
     "next": "^14.2.7",
     "next-auth": "4.24.11",
