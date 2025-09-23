@@ -29,13 +29,13 @@ declare namespace __next_route_internal_types__ {
     S extends `${string}${SearchOrHash}` ? never : S
 
   type StaticRoutes = 
-    | `/auth-debug`
     | `/favicon.ico`
-    | `/auth/callback`
     | `/`
+    | `/auth/callback`
+    | `/auth-debug`
     | `/login`
-    | `/mypage`
     | `/signup`
+    | `/mypage`
   type DynamicRoutes<T extends string = string> = 
     | `/api/auth/${CatchAllSlug<T>}`
 

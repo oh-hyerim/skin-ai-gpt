@@ -1,1 +1,1 @@
-{"version":1,"functions":{"/login":{},"/signup":{},"/mypage":{}}}
+{"version":1,"functions":{"/auth-debug":{},"/signup":{},"/auth/callback":{},"/login":{},"/mypage":{}}}
