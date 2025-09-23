@@ -1,21 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getSupabase } from "../../lib/supabaseClient";
+import { useSession } from "next-auth/react";
+
+export const dynamic = "force-dynamic";
 
 export default function AuthDebugPage() {
-  const [event, setEvent] = useState<string>("init");
-  const [sessionJson, setSessionJson] = useState<string>("null");
-  const [userJson, setUserJson] = useState<string>("null");
+  const { data: session, status } = useSession();
   const [storageKeys, setStorageKeys] = useState<string[]>([]);
 
-  const supabase = getSupabase();
-
-  const refresh = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    setSessionJson(JSON.stringify(session, null, 2));
-    const { data: { user } } = await supabase.auth.getUser();
-    setUserJson(JSON.stringify(user, null, 2));
+  const refresh = () => {
     try {
       const keys = Object.keys(localStorage).sort();
       setStorageKeys(keys);
@@ -26,39 +20,27 @@ export default function AuthDebugPage() {
 
   useEffect(() => {
     refresh();
-    const { data } = supabase.auth.onAuthStateChange((evt, session) => {
-      setEvent(evt);
-      setSessionJson(JSON.stringify(session, null, 2));
-      supabase.auth.getUser().then(({ data }) => {
-        setUserJson(JSON.stringify(data.user, null, 2));
-      });
-      try {
-        const keys = Object.keys(localStorage).sort();
-        setStorageKeys(keys);
-      } catch {
-        setStorageKeys([]);
-      }
-    });
-    return () => {
-      data.subscription.unsubscribe();
-    };
   }, []);
 
   return (
     <div className="mx-auto max-w-3xl p-4">
-      <h1 className="mb-4 text-xl font-semibold">Auth Debug</h1>
+      <h1 className="mb-4 text-xl font-semibold">Auth Debug (NextAuth)</h1>
+      
       <div className="mb-4 rounded border bg-white p-3">
-        <div className="mb-2 text-sm text-gray-600">event</div>
-        <pre className="whitespace-pre-wrap break-words text-sm">{event}</pre>
+        <div className="mb-2 text-sm text-gray-600">Session Status</div>
+        <pre className="whitespace-pre-wrap break-words text-sm">{status}</pre>
       </div>
+      
       <div className="mb-4 rounded border bg-white p-3">
-        <div className="mb-2 text-sm text-gray-600">supabase.auth.getSession()</div>
-        <pre className="whitespace-pre-wrap break-words text-xs">{sessionJson}</pre>
+        <div className="mb-2 text-sm text-gray-600">NextAuth Session</div>
+        <pre className="whitespace-pre-wrap break-words text-xs">{JSON.stringify(session, null, 2)}</pre>
       </div>
+      
       <div className="mb-4 rounded border bg-white p-3">
-        <div className="mb-2 text-sm text-gray-600">supabase.auth.getUser()</div>
-        <pre className="whitespace-pre-wrap break-words text-xs">{userJson}</pre>
+        <div className="mb-2 text-sm text-gray-600">User Info</div>
+        <pre className="whitespace-pre-wrap break-words text-xs">{JSON.stringify(session?.user || null, null, 2)}</pre>
       </div>
+      
       <div className="mb-4 rounded border bg-white p-3">
         <div className="mb-2 text-sm text-gray-600">localStorage keys</div>
         <ul className="list-disc pl-5 text-xs">
@@ -67,7 +49,10 @@ export default function AuthDebugPage() {
           ))}
         </ul>
       </div>
-      <button type="button" onClick={refresh} className="rounded border border-gray-300 bg-white px-3 py-1 text-sm hover:bg-gray-50">Refresh</button>
+      
+      <button type="button" onClick={refresh} className="rounded border border-gray-300 bg-white px-3 py-1 text-sm hover:bg-gray-50">
+        Refresh
+      </button>
     </div>
   );
 }
