@@ -1,12 +1,19 @@
 "use client"
 
 import { useEffect, useState } from 'react'
+import { useSession, signOut } from 'next-auth/react'
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false)
+  const { data: session, status } = useSession()
+  
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/' })
+  }
 
   if (!mounted) return null
 
@@ -175,9 +182,16 @@ export default function HomePage() {
       {/* 설정 뷰 */}
       <div id="settingsView" className="settings-view hidden">
         <div className="settings-login-card">
-          <button className="btn-outline">로그인</button>
-          <button className="btn-outline">회원가입</button>
-          <div id="settingsEmail" className="settings-email" style={{display:'none'}}></div>
+          {session?.user ? (
+            <div className="settings-user-info">
+              <span className="settings-email">{session.user.email}</span>
+            </div>
+          ) : (
+            <>
+              <button className="btn-outline">로그인</button>
+              <button className="btn-outline">회원가입</button>
+            </>
+          )}
         </div>
         <div className="settings-sep"></div>
         <button className="settings-item">알림 설정(푸쉬)</button>
@@ -197,7 +211,9 @@ export default function HomePage() {
         <button className="settings-item">서비스 소개</button>
 
         <div className="settings-sep"></div>
-        <button id="logoutBtn" className="settings-item" style={{display:'none'}}>로그아웃</button>
+        {session?.user && (
+          <button id="logoutBtn" className="settings-item" onClick={handleLogout}>로그아웃</button>
+        )}
         <button className="settings-item">닉네임 변경</button>
         <button className="settings-item">비밀번호 변경</button>
         <button className="settings-item">회원탈퇴</button>
@@ -262,7 +278,13 @@ export default function HomePage() {
         <header className="menu-header">
           <div className="menu-bar">
             <span></span>
-            <button id="loginBtn" className="login-btn">로그인</button>
+            {session?.user ? (
+              <div className="user-info">
+                <span className="user-email">{session.user.email}</span>
+              </div>
+            ) : (
+              <button id="loginBtn" className="login-btn">로그인</button>
+            )}
           </div>
         </header>
         <div className="menu-grid">
