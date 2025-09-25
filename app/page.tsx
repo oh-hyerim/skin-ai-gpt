@@ -63,18 +63,24 @@ function HomePageContent() {
 
       {/* Analysis View */}
       {currentView === 'analysis' && (
-        <div id="analysisView" className="view active">
+        <div id="analysisView" className="view active" style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'white', zIndex: 1000}}>
           <div className="flex justify-between items-center p-4">
             <BackButton fallbackUrl="/?view=main">← 뒤로</BackButton>
             <h2 className="text-lg font-semibold">분석</h2>
             <div></div>
           </div>
-        <div className="analysis-buttons">
-          <button className="big-btn">프로필</button>
-          <button className="big-btn">데일리</button>
-        </div>
-        {/* 기록 서브뷰 */}
-        <div id="recordView" className="record-view hidden">
+          
+          {/* 분석 탭 - 기본 화면 */}
+          {currentTab === 'analysis' && (
+            <div className="analysis-buttons">
+              <button className="big-btn">프로필</button>
+              <button className="big-btn">데일리</button>
+            </div>
+          )}
+          
+          {/* 기록 탭 */}
+          {currentTab === 'record' && (
+            <div id="recordView" className="record-view active">
           <div className="record-panel">
             <div className="record-legend">
               <label><input type="checkbox" name="metric-moisture" value="수분"/> 수분</label>
@@ -94,10 +100,12 @@ function HomePageContent() {
             </div>
           </div>
           <div className="record-info"></div>
-        </div>
+            </div>
+          )}
 
-        {/* 루틴 서브뷰 */}
-        <div id="routineView" className="routine-view hidden">
+          {/* 루틴 탭 */}
+          {currentTab === 'routine' && (
+            <div id="routineView" className="routine-view active">
           <header className="routine-header">
             <div className="routine-datebar">
               <button id="routinePrev" className="arrow left" aria-label="이전"></button>
@@ -140,13 +148,17 @@ function HomePageContent() {
           <div className="routine-footer">
             <button className="primary">루틴 완료</button>
           </div>
-        </div>
+            </div>
+          )}
 
-        {/* 내 제품 서브뷰 */}
-        <div id="productView" className="product-view hidden">
+          {/* 내 제품 탭 */}
+          {currentTab === 'product' && (
+            <div id="productView" className="product-view active">
           <button id="productAddBtn" className="product-add" aria-label="제품 추가">＋</button>
           <div id="productList" className="product-list"></div>
-        </div>
+            </div>
+          )}
+          
         <nav className="analysis-nav">
           <button 
             className={`analysis-nav-btn ${currentTab === 'analysis' ? 'active' : ''}`}
@@ -215,7 +227,7 @@ function HomePageContent() {
 
       {/* 상점 뷰 */}
       {currentView === 'shop' && (
-        <div id="shopView" className="shop-view active">
+        <div id="shopView" className="shop-view active" style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'white', zIndex: 1000}}>
           <div className="flex justify-between items-center p-4">
             <BackButton fallbackUrl="/?view=main">← 뒤로</BackButton>
             <h2 className="text-lg font-semibold">상점</h2>
@@ -254,7 +266,7 @@ function HomePageContent() {
 
       {/* 메뉴 뷰 */}
       {currentView === 'menu' && (
-        <div id="menuView" className="menu-view active">
+        <div id="menuView" className="menu-view active" style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'white', zIndex: 1000}}>
           <header className="menu-header">
             <div className="menu-bar">
               <BackButton fallbackUrl="/?view=main">← 뒤로</BackButton>
@@ -286,7 +298,7 @@ function HomePageContent() {
 
       {/* 설정 뷰 */}
       {currentView === 'settings' && (
-        <div id="settingsView" className="settings-view active">
+        <div id="settingsView" className="settings-view active" style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'white', zIndex: 1000}}>
           <div className="flex justify-between items-center p-4">
             <BackButton fallbackUrl="/?view=menu">← 뒤로</BackButton>
             <h2 className="text-lg font-semibold">설정</h2>
