@@ -1574,71 +1574,59 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 설정 화면 로그인/회원가입 버튼 연결
-    const settingsLoginBtn = document.getElementById('settingsLoginBtn');
-    const settingsSignupBtn = document.getElementById('settingsSignupBtn');
-    
-    if (settingsLoginBtn) {
-        settingsLoginBtn.addEventListener('click', () => {
-            // 모든 뷰 숨김 처리
-            if (pageView) pageView.classList.add('hidden');
-            if (shopView) shopView.classList.add('hidden');
-            if (analysisView) analysisView.classList.add('hidden');
-            if (menuView) menuView.classList.add('hidden');
-            const settingsViewEl = document.getElementById('settingsView');
-            if (settingsViewEl) settingsViewEl.classList.add('hidden');
-            
-            // 로그인 뷰 표시
-            if (loginView) { 
-                loginView.classList.remove('hidden'); 
-                loginView.classList.add('visible'); 
-            }
-            
-            // 로그인 옵션 표시
-            const loginOptions = document.getElementById('loginOptions');
-            if (loginFrame) { 
-                loginFrame.classList.add('hidden'); 
-                loginFrame.src = ''; 
-            }
-            if (loginOptions) {
-                loginOptions.classList.remove('hidden');
-                loginOptions.style.display = 'block';
-            }
-            
-            if (app) app.classList.remove('analysis-mode');
-        });
+    // 설정 화면 로그인/회원가입 버튼 연결 (이벤트 위임 방식)
+    function handleSettingsLogin() {
+        console.log('[Settings] 로그인 버튼 클릭됨');
+        
+        // 모든 뷰 숨김 처리
+        if (pageView) pageView.classList.add('hidden');
+        if (shopView) shopView.classList.add('hidden');
+        if (analysisView) analysisView.classList.add('hidden');
+        if (menuView) menuView.classList.add('hidden');
+        const settingsViewEl = document.getElementById('settingsView');
+        if (settingsViewEl) settingsViewEl.classList.add('hidden');
+        
+        // 로그인 뷰 표시
+        if (loginView) { 
+            loginView.classList.remove('hidden'); 
+            loginView.classList.add('visible'); 
+        }
+        
+        // 로그인 옵션 표시
+        const loginOptions = document.getElementById('loginOptions');
+        if (loginFrame) { 
+            loginFrame.classList.add('hidden'); 
+            loginFrame.src = ''; 
+        }
+        if (loginOptions) {
+            loginOptions.classList.remove('hidden');
+            loginOptions.style.display = 'block';
+        }
+        
+        if (app) app.classList.remove('analysis-mode');
     }
     
-    if (settingsSignupBtn) {
-        settingsSignupBtn.addEventListener('click', () => {
-            // 모든 뷰 숨김 처리
-            if (pageView) pageView.classList.add('hidden');
-            if (shopView) shopView.classList.add('hidden');
-            if (analysisView) analysisView.classList.add('hidden');
-            if (menuView) menuView.classList.add('hidden');
-            const settingsViewEl = document.getElementById('settingsView');
-            if (settingsViewEl) settingsViewEl.classList.add('hidden');
-            
-            // 로그인 뷰 표시 (회원가입도 같은 로그인 뷰 사용)
-            if (loginView) { 
-                loginView.classList.remove('hidden'); 
-                loginView.classList.add('visible'); 
-            }
-            
-            // 로그인 옵션 표시
-            const loginOptions = document.getElementById('loginOptions');
-            if (loginFrame) { 
-                loginFrame.classList.add('hidden'); 
-                loginFrame.src = ''; 
-            }
-            if (loginOptions) {
-                loginOptions.classList.remove('hidden');
-                loginOptions.style.display = 'block';
-            }
-            
-            if (app) app.classList.remove('analysis-mode');
-        });
-    }
+    // 이벤트 위임을 사용하여 동적으로 생성되는 버튼에도 이벤트 적용
+    document.addEventListener('click', (e) => {
+        // 설정 화면의 로그인/회원가입 버튼 클릭 처리
+        if (e.target && (e.target.id === 'settingsLoginBtn' || e.target.id === 'settingsSignupBtn')) {
+            console.log('[Settings] 버튼 클릭 감지:', e.target.id);
+            e.preventDefault();
+            e.stopPropagation();
+            handleSettingsLogin();
+            return;
+        }
+        
+        // 버튼이 중첩된 요소 내부에 있을 경우를 대비한 처리
+        const settingsBtn = e.target.closest('#settingsLoginBtn, #settingsSignupBtn');
+        if (settingsBtn) {
+            console.log('[Settings] 중첩 버튼 클릭 감지:', settingsBtn.id);
+            e.preventDefault();
+            e.stopPropagation();
+            handleSettingsLogin();
+            return;
+        }
+    });
 
     const PAGES = [];
 
