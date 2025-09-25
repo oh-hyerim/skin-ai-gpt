@@ -1,11 +1,20 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSession, signOut } from 'next-auth/react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import BackButton from '../components/BackButton'
 
-export default function HomePage() {
+function HomePageContent() {
   const [mounted, setMounted] = useState(false)
   const { data: session, status } = useSession()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
+  // URL에서 현재 뷰 상태 읽기
+  const currentView = searchParams.get('view') || 'main'
+  const currentTab = searchParams.get('tab') || 'analysis'
   
   useEffect(() => {
     setMounted(true)
@@ -13,6 +22,14 @@ export default function HomePage() {
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/' })
+  }
+
+  // 뷰 전환 함수 - URL을 업데이트하여 브라우저 히스토리에 기록
+  const navigateToView = (view: string, tab?: string) => {
+    const params = new URLSearchParams()
+    params.set('view', view)
+    if (tab) params.set('tab', tab)
+    router.push(`/?${params.toString()}`)
   }
 
   if (!mounted) return null
@@ -33,17 +50,25 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Page (기존) View */}
-      <div id="pageView" className="view active">
-        <main className="main-display">
-          <div id="pagesWrapper" className="pages-wrapper"></div>
-        </main>
-        {/* Page Indicators */}
-        <div id="pageIndicators" className="page-indicators"></div>
-      </div>
+      {/* Main Page View */}
+      {currentView === 'main' && (
+        <div id="pageView" className="view active">
+          <main className="main-display">
+            <div id="pagesWrapper" className="pages-wrapper"></div>
+          </main>
+          {/* Page Indicators */}
+          <div id="pageIndicators" className="page-indicators"></div>
+        </div>
+      )}
 
       {/* Analysis View */}
-      <div id="analysisView" className="view hidden">
+      {currentView === 'analysis' && (
+        <div id="analysisView" className="view active">
+          <div className="flex justify-between items-center p-4">
+            <BackButton fallbackUrl="/?view=main">← 뒤로</BackButton>
+            <h2 className="text-lg font-semibold">분석</h2>
+            <div></div>
+          </div>
         <div className="analysis-buttons">
           <button className="big-btn">프로필</button>
           <button className="big-btn">데일리</button>
@@ -123,19 +148,60 @@ export default function HomePage() {
           <div id="productList" className="product-list"></div>
         </div>
         <nav className="analysis-nav">
-          <button className="analysis-nav-btn active">분석</button>
-          <button className="analysis-nav-btn">기록</button>
-          <button className="analysis-nav-btn">루틴</button>
-          <button className="analysis-nav-btn">내 제품</button>
+          <button 
+            className={`analysis-nav-btn ${currentTab === 'analysis' ? 'active' : ''}`}
+            onClick={() => navigateToView('analysis', 'analysis')}
+          >
+            분석
+          </button>
+          <button 
+            className={`analysis-nav-btn ${currentTab === 'record' ? 'active' : ''}`}
+            onClick={() => navigateToView('analysis', 'record')}
+          >
+            기록
+          </button>
+          <button 
+            className={`analysis-nav-btn ${currentTab === 'routine' ? 'active' : ''}`}
+            onClick={() => navigateToView('analysis', 'routine')}
+          >
+            루틴
+          </button>
+          <button 
+            className={`analysis-nav-btn ${currentTab === 'product' ? 'active' : ''}`}
+            onClick={() => navigateToView('analysis', 'product')}
+          >
+            내 제품
+          </button>
         </nav>
-      </div>
+        </div>
+      )}
 
       {/* Bottom Navigation */}
       <nav className="bottom-nav">
-        <button className="nav-btn" data-label="분석">분석</button>
-        <button className="nav-btn" data-label="커뮤니티">커뮤니티</button>
-        <button className="nav-btn" data-label="상점">상점</button>
-        <button className="nav-btn" data-label="메뉴">메뉴</button>
+        <button 
+          className={`nav-btn ${currentView === 'analysis' ? 'active' : ''}`}
+          onClick={() => navigateToView('analysis')}
+          data-label="분석"
+        >
+          분석
+        </button>
+        <Link href="/community" className="nav-btn" data-label="커뮤니티">
+          커뮤니티
+        </Link>
+        <button 
+          className={`nav-btn ${currentView === 'shop' ? 'active' : ''}`}
+          onClick={() => navigateToView('shop')}
+          data-label="상점"
+        >
+          상점
+        </button>
+        <button 
+          className={`nav-btn ${currentView === 'menu' ? 'active' : ''}`}
+          onClick={() => navigateToView('menu')}
+          data-label="메뉴"
+        >
+          메뉴
+        </button>
       </nav>
 
       {/* Edit Overlay */}
@@ -148,7 +214,13 @@ export default function HomePage() {
       </div>
 
       {/* 상점 뷰 */}
-      <div id="shopView" className="shop-view hidden">
+      {currentView === 'shop' && (
+        <div id="shopView" className="shop-view active">
+          <div className="flex justify-between items-center p-4">
+            <BackButton fallbackUrl="/?view=main">← 뒤로</BackButton>
+            <h2 className="text-lg font-semibold">상점</h2>
+            <div></div>
+          </div>
         <div className="shop-container">
           <article className="shop-card">
             <div className="thumb placeholder"></div>
@@ -177,10 +249,49 @@ export default function HomePage() {
           </article>
           <p className="notice">*본 정보는 브랜드 공식 자료 기반으로 제공됩니다.</p>
         </div>
-      </div>
+        </div>
+      )}
+
+      {/* 메뉴 뷰 */}
+      {currentView === 'menu' && (
+        <div id="menuView" className="menu-view active">
+          <header className="menu-header">
+            <div className="menu-bar">
+              <BackButton fallbackUrl="/?view=main">← 뒤로</BackButton>
+              {session?.user ? (
+                <div className="user-info">
+                  <span className="user-email">{session.user.email}</span>
+                </div>
+              ) : (
+                <Link href="/login" className="login-btn">로그인</Link>
+              )}
+            </div>
+          </header>
+          <div className="menu-grid">
+            <button className="circle-btn" onClick={() => navigateToView('analysis')}>분석</button>
+            <Link href="/community" className="circle-btn">커뮤니티</Link>
+            <button className="circle-btn" onClick={() => navigateToView('shop')}>상점</button>
+            <button className="circle-btn" data-go="camera">카메라</button>
+            <button className="circle-btn" data-go="gallery">갤러리</button>
+            <button className="circle-btn" data-go="alarm">알람</button>
+            <button className="circle-btn" onClick={() => navigateToView('settings')}>설정</button>
+            <button className="circle-btn disabled"></button>
+            <button className="circle-btn disabled"></button>
+            <button className="circle-btn disabled"></button>
+            <button className="circle-btn disabled"></button>
+            <button className="circle-btn disabled"></button>
+          </div>
+        </div>
+      )}
 
       {/* 설정 뷰 */}
-      <div id="settingsView" className="settings-view hidden">
+      {currentView === 'settings' && (
+        <div id="settingsView" className="settings-view active">
+          <div className="flex justify-between items-center p-4">
+            <BackButton fallbackUrl="/?view=menu">← 뒤로</BackButton>
+            <h2 className="text-lg font-semibold">설정</h2>
+            <div></div>
+          </div>
         <div className="settings-login-card">
           {session?.user ? (
             <div className="settings-user-info">
@@ -217,7 +328,8 @@ export default function HomePage() {
         <button className="settings-item">닉네임 변경</button>
         <button className="settings-item">비밀번호 변경</button>
         <button className="settings-item">회원탈퇴</button>
-      </div>
+        </div>
+      )}
 
       {/* 알람 뷰 */}
       <div id="alarmView" className="alarm-view hidden">
@@ -309,6 +421,14 @@ export default function HomePage() {
         <iframe id="loginFrame" className="login-frame" src="" frameBorder={0}></iframe>
       </div>
     </div>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">로딩 중...</div>}>
+      <HomePageContent />
+    </Suspense>
   )
 }
 

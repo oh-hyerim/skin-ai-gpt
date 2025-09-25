@@ -74,6 +74,7 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f2f2f2; pa
 }
 
 .nav-btn:active { background: #b5b5b5; }
+.nav-btn.active { background: #4caf50; color: white; }
 
 /* Edit overlay */
 .edit-overlay {
