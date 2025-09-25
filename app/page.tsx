@@ -188,8 +188,8 @@ export default function HomePage() {
             </div>
           ) : (
             <>
-              <button className="btn-outline">로그인</button>
-              <button className="btn-outline">회원가입</button>
+              <button id="settingsLoginBtn" className="btn-outline">로그인</button>
+              <button id="settingsSignupBtn" className="btn-outline">회원가입</button>
             </>
           )}
         </div>

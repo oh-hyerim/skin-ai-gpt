@@ -1575,43 +1575,69 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 설정 화면 로그인/회원가입 버튼 연결
-    const settingsLoginCard = document.querySelector('.settings-login-card');
-    if (settingsLoginCard) {
-        const btns = settingsLoginCard.querySelectorAll('button');
-        const settingsLoginBtn = btns[0];
-        const settingsSignupBtn = btns[1];
-        if (settingsLoginBtn) {
-            settingsLoginBtn.addEventListener('click', () => {
-                const loginOptions = document.getElementById('loginOptions');
-                if (loginFrame) { loginFrame.classList.add('hidden'); loginFrame.src=''; }
-                if (loginOptions) {
+    const settingsLoginBtn = document.getElementById('settingsLoginBtn');
+    const settingsSignupBtn = document.getElementById('settingsSignupBtn');
+    
+    if (settingsLoginBtn) {
+        settingsLoginBtn.addEventListener('click', () => {
+            // 모든 뷰 숨김 처리
+            if (pageView) pageView.classList.add('hidden');
+            if (shopView) shopView.classList.add('hidden');
+            if (analysisView) analysisView.classList.add('hidden');
+            if (menuView) menuView.classList.add('hidden');
+            const settingsViewEl = document.getElementById('settingsView');
+            if (settingsViewEl) settingsViewEl.classList.add('hidden');
+            
+            // 로그인 뷰 표시
+            if (loginView) { 
+                loginView.classList.remove('hidden'); 
+                loginView.classList.add('visible'); 
+            }
+            
+            // 로그인 옵션 표시
+            const loginOptions = document.getElementById('loginOptions');
+            if (loginFrame) { 
+                loginFrame.classList.add('hidden'); 
+                loginFrame.src = ''; 
+            }
+            if (loginOptions) {
                 loginOptions.classList.remove('hidden');
                 loginOptions.style.display = 'block';
             }
-                if (app) app.classList.remove('analysis-mode');
-                if (pageView) pageView.classList.add('hidden');
-                if (shopView) shopView.classList.add('hidden');
-                if (analysisView) analysisView.classList.add('hidden');
-                if (menuView) menuView.classList.add('hidden');
-                if (loginView) { loginView.classList.remove('hidden'); loginView.classList.add('visible'); }
-            });
-        }
-        if (settingsSignupBtn) {
-            settingsSignupBtn.addEventListener('click', () => {
-                const loginOptions = document.getElementById('loginOptions');
-                if (loginFrame) { loginFrame.classList.add('hidden'); loginFrame.src=''; }
-                if (loginOptions) {
+            
+            if (app) app.classList.remove('analysis-mode');
+        });
+    }
+    
+    if (settingsSignupBtn) {
+        settingsSignupBtn.addEventListener('click', () => {
+            // 모든 뷰 숨김 처리
+            if (pageView) pageView.classList.add('hidden');
+            if (shopView) shopView.classList.add('hidden');
+            if (analysisView) analysisView.classList.add('hidden');
+            if (menuView) menuView.classList.add('hidden');
+            const settingsViewEl = document.getElementById('settingsView');
+            if (settingsViewEl) settingsViewEl.classList.add('hidden');
+            
+            // 로그인 뷰 표시 (회원가입도 같은 로그인 뷰 사용)
+            if (loginView) { 
+                loginView.classList.remove('hidden'); 
+                loginView.classList.add('visible'); 
+            }
+            
+            // 로그인 옵션 표시
+            const loginOptions = document.getElementById('loginOptions');
+            if (loginFrame) { 
+                loginFrame.classList.add('hidden'); 
+                loginFrame.src = ''; 
+            }
+            if (loginOptions) {
                 loginOptions.classList.remove('hidden');
                 loginOptions.style.display = 'block';
             }
-                if (app) app.classList.remove('analysis-mode');
-                if (pageView) pageView.classList.add('hidden');
-                if (shopView) shopView.classList.add('hidden');
-                if (analysisView) analysisView.classList.add('hidden');
-                if (menuView) menuView.classList.add('hidden');
-                if (loginView) { loginView.classList.remove('hidden'); loginView.classList.add('visible'); }
-            });
-        }
+            
+            if (app) app.classList.remove('analysis-mode');
+        });
     }
 
     const PAGES = [];
