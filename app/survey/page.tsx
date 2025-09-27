@@ -11,7 +11,7 @@ type Answer =
   | { type: "file"; qid: string; files: string[] }
 
 type SurveyState = {
-  sectionIndex: 0 | 1 | 2 | 3 | 4 | 5
+  sectionIndex: 0 | 1 | 2 | 3 | 4 | 5 | 6
   pageIndex: number
   answers: Record<string, Answer>
 }
@@ -228,7 +228,7 @@ export default function SurveyPage() {
       if (prev.pageIndex < maxPagesInSection - 1) {
         return { ...prev, pageIndex: prev.pageIndex + 1 }
       } else if (prev.sectionIndex < 6) {
-        return { ...prev, sectionIndex: (prev.sectionIndex + 1) as any, pageIndex: 0 }
+        return { ...prev, sectionIndex: (prev.sectionIndex + 1) as 0 | 1 | 2 | 3 | 4 | 5 | 6, pageIndex: 0 }
       }
       
       return prev
@@ -241,7 +241,7 @@ export default function SurveyPage() {
       if (prev.pageIndex > 0) {
         return { ...prev, pageIndex: prev.pageIndex - 1 }
       } else if (prev.sectionIndex > 0) {
-        const prevSectionIndex = (prev.sectionIndex - 1) as any
+        const prevSectionIndex = (prev.sectionIndex - 1) as 0 | 1 | 2 | 3 | 4 | 5 | 6
         const maxPages = getMaxPagesInSection(prevSectionIndex)
         return { 
           ...prev, 
