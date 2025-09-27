@@ -168,11 +168,11 @@ const ScoreAllocator = ({
 // 메인 설문 컴포넌트
 export default function SurveyPage() {
   const router = useRouter()
-  const [surveyState, setSurveyState] = useState<SurveyState>({
+  const [surveyState, setSurveyState] = useState<SurveyState>(() => ({
     sectionIndex: 0,
     pageIndex: 0,
     answers: {}
-  })
+  }))
   const [showProductModal, setShowProductModal] = useState(false)
 
   // 현재 페이지 정보 계산
@@ -234,64 +234,87 @@ export default function SurveyPage() {
   const updateAnswer = (qid: string, answer: Answer) => {
     setSurveyState(prev => {
       if (!prev) return prev
-      return {
-        ...prev,
-        answers: {
-          ...prev.answers,
-          [qid]: answer
+      try {
+        return {
+          ...prev,
+          answers: {
+            ...prev.answers,
+            [qid]: answer
+          }
         }
+      } catch (error) {
+        console.error('Error updating answer:', error)
+        return prev
       }
     })
   }
 
   // 다음 페이지로 이동
   const goToNext = () => {
-    // 섹션 6에서 제품 등록 모달 표시
-    if (surveyState.sectionIndex === 6 && surveyState.pageIndex === 0) {
-      setShowProductModal(true)
-      return
-    }
-    
-    // 마지막 페이지에서 결과 페이지로
-    if (surveyState.sectionIndex === 6 && surveyState.pageIndex === 1) {
-      router.push('/survey/results')
-      return
-    }
-    
-    // 일반적인 다음 페이지 로직
-    setSurveyState(prev => {
-      if (!prev) return prev
-      
-      const maxPagesInSection = getMaxPagesInSection(prev.sectionIndex)
-      
-      if (prev.pageIndex < maxPagesInSection - 1) {
-        return { ...prev, pageIndex: prev.pageIndex + 1 }
-      } else if (prev.sectionIndex < 6) {
-        return { ...prev, sectionIndex: (prev.sectionIndex + 1) as 0 | 1 | 2 | 3 | 4 | 5 | 6, pageIndex: 0 }
+    try {
+      // 섹션 6에서 제품 등록 모달 표시
+      if (surveyState.sectionIndex === 6 && surveyState.pageIndex === 0) {
+        setShowProductModal(true)
+        return
       }
       
-      return prev
-    })
+      // 마지막 페이지에서 결과 페이지로
+      if (surveyState.sectionIndex === 6 && surveyState.pageIndex === 1) {
+        router.push('/survey/results')
+        return
+      }
+      
+      // 일반적인 다음 페이지 로직
+      setSurveyState(prev => {
+        if (!prev) return prev
+        
+        try {
+          const maxPagesInSection = getMaxPagesInSection(prev.sectionIndex)
+          
+          if (prev.pageIndex < maxPagesInSection - 1) {
+            return { ...prev, pageIndex: prev.pageIndex + 1 }
+          } else if (prev.sectionIndex < 6) {
+            return { ...prev, sectionIndex: (prev.sectionIndex + 1) as 0 | 1 | 2 | 3 | 4 | 5 | 6, pageIndex: 0 }
+          }
+          
+          return prev
+        } catch (error) {
+          console.error('Error in goToNext:', error)
+          return prev
+        }
+      })
+    } catch (error) {
+      console.error('Error in goToNext function:', error)
+    }
   }
 
   // 이전 페이지로 이동
   const goToPrev = () => {
-    setSurveyState(prev => {
-      if (!prev) return prev
-      
-      if (prev.pageIndex > 0) {
-        return { ...prev, pageIndex: prev.pageIndex - 1 }
-      } else if (prev.sectionIndex > 0) {
-        const prevSectionIndex = (prev.sectionIndex - 1) as 0 | 1 | 2 | 3 | 4 | 5 | 6
-        const maxPages = getMaxPagesInSection(prevSectionIndex)
-        return { 
-          ...prev, 
-          sectionIndex: prevSectionIndex, 
-          pageIndex: maxPages - 1 
+    try {
+      setSurveyState(prev => {
+        if (!prev) return prev
+        
+        try {
+          if (prev.pageIndex > 0) {
+            return { ...prev, pageIndex: prev.pageIndex - 1 }
+          } else if (prev.sectionIndex > 0) {
+            const prevSectionIndex = (prev.sectionIndex - 1) as 0 | 1 | 2 | 3 | 4 | 5 | 6
+            const maxPages = getMaxPagesInSection(prevSectionIndex)
+            return { 
+              ...prev, 
+              sectionIndex: prevSectionIndex, 
+              pageIndex: maxPages - 1 
+            }
+          }
+          return prev
+        } catch (error) {
+          console.error('Error in goToPrev:', error)
+          return prev
         }
-      }
-      return prev
-    })
+      })
+    } catch (error) {
+      console.error('Error in goToPrev function:', error)
+    }
   }
 
   // 섹션별 최대 페이지 수
@@ -384,11 +407,20 @@ export default function SurveyPage() {
 
   // 제품 등록 모달 처리
   const handleProductModalConfirm = () => {
-    setShowProductModal(false)
-    setSurveyState(prev => {
-      if (!prev) return prev
-      return { ...prev, pageIndex: 1 }
-    })
+    try {
+      setShowProductModal(false)
+      setSurveyState(prev => {
+        if (!prev) return prev
+        try {
+          return { ...prev, pageIndex: 1 }
+        } catch (error) {
+          console.error('Error in handleProductModalConfirm:', error)
+          return prev
+        }
+      })
+    } catch (error) {
+      console.error('Error in handleProductModalConfirm function:', error)
+    }
   }
 
   const handleProductModalSkip = () => {
@@ -409,7 +441,7 @@ export default function SurveyPage() {
       </div>
 
       {/* 페이지 내용 */}
-      <div className="survey-content" key={`${surveyState.sectionIndex}-${surveyState.pageIndex}`}>
+      <div className="survey-content" key={`survey-content-${surveyState.sectionIndex}-${surveyState.pageIndex}`}>
         {renderCurrentPage()}
       </div>
 
