@@ -390,8 +390,8 @@ export default function SurveyPage() {
         ]
         
         const currentValues = surveyState.answers.q1?.type === 'score10' 
-          ? surveyState.answers.q1.items.reduce((acc, item) => ({ ...acc, [item.key]: item.score }), {})
-          : {}
+          ? surveyState.answers.q1.items.reduce((acc, item) => ({ ...acc, [item.key]: item.score }), {} as Record<string, number>)
+          : {} as Record<string, number>
 
         return (
           <ScoreAllocator10
@@ -468,8 +468,8 @@ export default function SurveyPage() {
         ]
         
         const currentValues = surveyState.answers.q4?.type === 'score10' 
-          ? surveyState.answers.q4.items.reduce((acc, item) => ({ ...acc, [item.key]: item.score }), {})
-          : {}
+          ? surveyState.answers.q4.items.reduce((acc, item) => ({ ...acc, [item.key]: item.score }), {} as Record<string, number>)
+          : {} as Record<string, number>
 
         return (
           <ScoreAllocator10
