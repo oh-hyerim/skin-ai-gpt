@@ -64,11 +64,7 @@ function HomePageContent() {
       {/* Analysis View */}
       {currentView === 'analysis' && (
         <div id="analysisView" className="view active" style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'white', zIndex: 1000}}>
-          <div className="flex justify-between items-center p-4">
-            <BackButton fallbackUrl="/?view=main">← 뒤로</BackButton>
-            <h2 className="text-lg font-semibold">분석</h2>
-            <div></div>
-          </div>
+          <div className="p-4"></div>
           
           {/* 분석 탭 - 기본 화면 */}
           {currentTab === 'analysis' && (
@@ -228,11 +224,7 @@ function HomePageContent() {
       {/* 상점 뷰 */}
       {currentView === 'shop' && (
         <div id="shopView" className="shop-view active" style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'white', zIndex: 1000}}>
-          <div className="flex justify-between items-center p-4">
-            <BackButton fallbackUrl="/?view=main">← 뒤로</BackButton>
-            <h2 className="text-lg font-semibold">상점</h2>
-            <div></div>
-          </div>
+          <div className="p-4"></div>
         <div className="shop-container">
           <article className="shop-card">
             <div className="thumb placeholder"></div>
@@ -268,7 +260,6 @@ function HomePageContent() {
       {currentView === 'menu' && (
         <div id="menuView" className="menu-view active" style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: '#d9d9d9', zIndex: 1000}}>
           <header className="menu-header">
-            <BackButton fallbackUrl="/?view=main">← 뒤로</BackButton>
             <div className="menu-login-bar">
               {session?.user ? (
                 <div className="user-info">
@@ -342,14 +333,10 @@ function HomePageContent() {
       {/* 설정 뷰 */}
       {currentView === 'settings' && (
         <div id="settingsView" className="settings-view active" style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'white', zIndex: 1000}}>
-          <div className="flex justify-between items-center p-4">
-            <BackButton fallbackUrl="/?view=menu">← 뒤로</BackButton>
-            <h2 className="text-lg font-semibold">설정</h2>
-            <div></div>
-          </div>
+          <div className="p-4"></div>
         <div className="settings-login-card">
           {session?.user ? (
-            <div className="settings-user-info">
+            <div className="settings-user-card">
               <span className="settings-email">{session.user.email}</span>
             </div>
           ) : (

@@ -251,7 +251,7 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f2f2f2; pa
 
 .menu-view{position:absolute;inset:0;background:#d9d9d9;padding:40px 12px 50px;display:flex;flex-direction:column;}
 .menu-view.hidden{display:none;}
-.menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.menu-header{display:flex;justify-content:center;align-items:center;margin-bottom:20px;}
 .menu-login-bar{width:200px;height:40px;background:#fff;border-radius:8px;display:flex;justify-content:flex-start;align-items:center;padding:0 15px;border:1px solid #ccc;}
 .login-btn{background:transparent;border:none;font-size:0.85rem;cursor:pointer;color:#333;}
 .user-email{font-size:0.85rem;color:#333;text-align:left;}
@@ -324,6 +324,8 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f2f2f2; pa
 .settings-view{position:absolute;inset:0;background:#d9d9d9;padding:40px 12px 50px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
 .settings-view.hidden{display:none;}
 .settings-login-card{background:#fff;border-radius:6px;padding:14px;display:flex;justify-content:flex-end;gap:8px;align-items:center;}
+.settings-user-card{background:#f8f9fa;border:1px solid #e9ecef;border-radius:8px;padding:16px;margin:16px;text-align:left;}
+.settings-user-card .settings-email{font-size:0.9rem;color:#495057;font-weight:500;}
 .settings-item{background:#fff;border:1px solid #ccc;border-radius:6px;padding:12px 10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
 .settings-item .muted{color:#999;font-size:0.85rem;}
 .settings-sep{height:10px;background:#cfcfcf;border-radius:6px;}
