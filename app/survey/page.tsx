@@ -112,21 +112,25 @@ const StepNav = ({
   )
 }
 
-const ScoreAllocator10 = ({ 
+const ScoreAllocator = ({ 
   items, 
   values, 
-  onChange 
+  onChange,
+  maxTotal = 10,
+  maxPerItem = 5
 }: {
   items: { key: string; label: string; description?: string }[]
   values: Record<string, number>
   onChange: (key: string, value: number) => void
+  maxTotal?: number
+  maxPerItem?: number
 }) => {
   const total = Object.values(values).reduce((sum, val) => sum + val, 0)
   
   return (
     <div className="score-allocator">
       <div className="score-header">
-        현재 배분: {total} / 10
+        현재 배분: {total} / {maxTotal}
       </div>
       <div className="score-items">
         {items.map((item) => (
@@ -148,8 +152,8 @@ const ScoreAllocator10 = ({
               <span className="stepper-value">{values[item.key] || 0}</span>
               <button
                 className="stepper-btn"
-                onClick={() => onChange(item.key, Math.min(5, (values[item.key] || 0) + 1))}
-                disabled={(values[item.key] || 0) >= 5 || total >= 10}
+                onClick={() => onChange(item.key, Math.min(maxPerItem, (values[item.key] || 0) + 1))}
+                disabled={(values[item.key] || 0) >= maxPerItem || total >= maxTotal}
               >
                 +
               </button>
@@ -292,8 +296,8 @@ export default function SurveyPage() {
     switch (sectionIndex) {
       case 0: return 1 // 인트로
       case 1: return 5 // 관심사 & 선호
-      case 2: return 4 // 바우만 16타입
-      case 3: return 8 // 정밀 분석
+      case 2: return 12 // 바우만 16타입 (6개 D/O + 6개 S/R)
+      case 3: return 13 // 정밀 분석 (색소 7개 + 주름 6개)
       case 4: return 15 // 생활습관
       case 5: return 2 // 사진 업로드
       case 6: return 2 // 제품 등록
@@ -334,11 +338,11 @@ export default function SurveyPage() {
         const ans = surveyState.answers.q3
         return !isMulti(ans) || ans.values.length === 0
       }
-      if (pageIndex === 3) { // Q4 - 점수제
+      if (pageIndex === 3) { // Q4 - 점수제 (6점)
         const ans = surveyState.answers.q4
         if (!isScore10(ans)) return true
         const total = ans.items.reduce((sum, item) => sum + item.score, 0)
-        return total !== 10
+        return total !== 6
       }
       if (pageIndex === 4) { // Q5 - 단일선택
         const ans = surveyState.answers.q5
@@ -346,12 +350,30 @@ export default function SurveyPage() {
       }
     }
     
-    // 섹션 2: 바우만 16타입
+    // 섹션 2: 바우만 16타입 (각 문항별 검증)
     if (sectionIndex === 2) {
-      if (pageIndex === 0) {
-        const questions = ['baumann_do_1', 'baumann_do_2', 'baumann_do_3']
-        return questions.some(qid => !isSingle(surveyState.answers[qid]))
+      const questionIds = [
+        'baumann_do_1', 'baumann_do_2', 'baumann_do_3', 'baumann_do_4', 'baumann_do_5', 'baumann_do_6', // D/O 문항
+        'baumann_sr_1', 'baumann_sr_2', 'baumann_sr_3', 'baumann_sr_4', 'baumann_sr_5', 'baumann_sr_6'  // S/R 문항
+      ]
+      const currentQid = questionIds[pageIndex]
+      return !isSingle(surveyState.answers[currentQid])
+    }
+    
+    // 섹션 3: 정밀 분석 (각 문항별 검증)
+    if (sectionIndex === 3) {
+      const questionIds = [
+        'pigment_1', 'pigment_2', 'pigment_3', 'pigment_4', 'pigment_5', 'pigment_6', 'pigment_7', // 색소 문항
+        'wrinkle_1', 'wrinkle_2', 'wrinkle_3', 'wrinkle_4', 'wrinkle_5', 'wrinkle_6'  // 주름 문항
+      ]
+      const currentQid = questionIds[pageIndex]
+      
+      // pigment_4 문항(분포 부위)은 복수선택
+      if (currentQid === 'pigment_4') {
+        return !isMulti(surveyState.answers[currentQid]) || (surveyState.answers[currentQid] as any)?.values?.length === 0
       }
+      
+      return !isSingle(surveyState.answers[currentQid])
     }
     
     return false
@@ -478,9 +500,11 @@ export default function SurveyPage() {
           : {} as Record<string, number>
 
         return (
-          <ScoreAllocator10
+          <ScoreAllocator
             items={items}
             values={currentValues}
+            maxTotal={10}
+            maxPerItem={5}
             onChange={(key, value) => {
               const newItems = items.map(item => ({
                 key: item.key,
@@ -545,7 +569,7 @@ export default function SurveyPage() {
       }
       
       if (pageIndex === 3) {
-        // Q4. 제품 추천 기준 10점 배분
+        // Q4. 제품 추천 기준 6점 배분
         const items = [
           { key: 'ingredient', label: '성분' },
           { key: 'texture', label: '제형' },
@@ -559,9 +583,11 @@ export default function SurveyPage() {
           : {} as Record<string, number>
 
         return (
-          <ScoreAllocator10
+          <ScoreAllocator
             items={items}
             values={currentValues}
+            maxTotal={6}
+            maxPerItem={3}
             onChange={(key, value) => {
               const newItems = items.map(item => ({
                 key: item.key,
@@ -596,55 +622,203 @@ export default function SurveyPage() {
       }
     }
     
-    // 섹션 2: 바우만 16타입
+    // 섹션 2: 바우만 16타입 (한 페이지에 한 문항)
     if (sectionIndex === 2) {
-      if (pageIndex === 0) {
-        // 수분/유분 질문들
-        const questions = [
-          {
-            question: '세안 후 기초제품을 바르는 시간대는?',
-            options: ['즉시(1~3분)', '4~10분', '11~30분', '30분+', '거의 안 바름'],
-            qid: 'baumann_do_1'
-          },
-          {
-            question: '기초제품 후 3시간 후 느낌은?',
-            options: ['너무 건조', '약간 건조', '보통', '약간 번들', '매우 유분'],
-            qid: 'baumann_do_2'
-          },
-          {
-            question: '오후 T존 상태는?',
-            options: ['매우 건조', '약간 건조', '변화 없음', '약간 유분', '매우 유분'],
-            qid: 'baumann_do_3'
-          }
-        ]
-        
-        return (
-          <div className="baumann-questions">
-            {questions.map((q, idx) => (
-              <div key={idx} className="baumann-question">
-                <h4 className="question-title">{q.question}</h4>
-                <div className="choice-grid">
-                  {q.options.map((option) => (
-                    <ChoiceCard
-                      key={option}
-                      selected={isOptionSelected(surveyState.answers[q.qid], option)}
-                      onClick={() => updateAnswer(q.qid, { type: 'single', qid: q.qid, value: option })}
-                    >
-                      {option}
-                    </ChoiceCard>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )
+      const questions = [
+        // D/O (수분/유분) 문항들
+        {
+          question: '세안 후 기초제품을 바르는 시간대는?',
+          options: ['즉시(1~3분)', '4~10분', '11~30분', '30분+', '거의 안 바름'],
+          qid: 'baumann_do_1'
+        },
+        {
+          question: '기초제품 바르고 3시간 후 느낌은?',
+          options: ['너무 건조/당김', '약간 건조', '보통', '약간 번들', '심하게 유분'],
+          qid: 'baumann_do_2'
+        },
+        {
+          question: '오후 T존 상태는?',
+          options: ['매우 건조', '약간 건조', '변화 없음', '약간 유분', '매우 유분'],
+          qid: 'baumann_do_3'
+        },
+        {
+          question: '오후 U존 상태는?',
+          options: ['매우 건조', '약간 건조', '보통', '약간 유분', '매우 유분'],
+          qid: 'baumann_do_4'
+        },
+        {
+          question: '겨울 보습 도포 횟수는?',
+          options: ['2회 이상', '1회', '거의 안 함'],
+          qid: 'baumann_do_5'
+        },
+        {
+          question: '기름 제거 습관은?',
+          options: ['하루2회+', '하루1회', '거의 없음', '땀 날 때만 누름'],
+          qid: 'baumann_do_6'
+        },
+        // S/R (민감성) 문항들
+        {
+          question: '새 제품 사용 시 따가움/화끈거림은?',
+          options: ['자주', '가끔', '거의 없음'],
+          qid: 'baumann_sr_1'
+        },
+        {
+          question: '온도차로 붉어지는 경우는?',
+          options: ['자주', '가끔', '드물게', '거의 없음'],
+          qid: 'baumann_sr_2'
+        },
+        {
+          question: '여드름 빈도는?',
+          options: ['주1회+', '월1~2회', '몇달1회', '거의 없음'],
+          qid: 'baumann_sr_3'
+        },
+        {
+          question: '가려움·두드러기는?',
+          options: ['자주', '가끔', '없음'],
+          qid: 'baumann_sr_4'
+        },
+        {
+          question: '각질제거제·레티놀 사용 시?',
+          options: ['바로 자극', '서서히 적응', '문제 없음'],
+          qid: 'baumann_sr_5'
+        },
+        {
+          question: '기초제품의 향(천연 포함) 자극 경험은?',
+          options: ['있다', '향 있으나 반응 없음', '둘다 없음'],
+          qid: 'baumann_sr_6'
+        }
+      ]
+      
+      const currentQuestion = questions[pageIndex]
+      if (!currentQuestion) {
+        return <div className="placeholder-content">문항을 찾을 수 없습니다.</div>
       }
       
-      // 나머지 바우만 타입 페이지들 (민감성, 색소, 주름)
       return (
-        <div className="placeholder-content">
-          <p>바우만 타입 - {['수분/유분', '민감성', '색소', '주름'][pageIndex]}</p>
-          <p>이 페이지는 아직 구현 중입니다.</p>
+        <div className="single-question">
+          <h3 className="question-title">{currentQuestion.question}</h3>
+          <div className="choice-grid">
+            {currentQuestion.options.map((option) => (
+              <ChoiceCard
+                key={option}
+                selected={isOptionSelected(surveyState.answers[currentQuestion.qid], option)}
+                onClick={() => updateAnswer(currentQuestion.qid, { type: 'single', qid: currentQuestion.qid, value: option })}
+              >
+                {option}
+              </ChoiceCard>
+            ))}
+          </div>
+        </div>
+      )
+    }
+    
+    // 섹션 3: 정밀 분석 (한 페이지에 한 문항)
+    if (sectionIndex === 3) {
+      const questions = [
+        // 색소(P/N) 문항들
+        {
+          question: '자외선 차단제 사용 빈도는?',
+          options: ['매일2회+', '매일1회', '가끔', '거의 안 함'],
+          qid: 'pigment_1'
+        },
+        {
+          question: '자외선 차단제 재도포는?',
+          options: ['2시간마다', '하루1회', '거의 안함'],
+          qid: 'pigment_2'
+        },
+        {
+          question: '잡티/기미/주근깨 정도는?',
+          options: ['없음', '적음', '중간', '넓게 많음'],
+          qid: 'pigment_3'
+        },
+        {
+          question: '잡티/기미 분포 부위는? (복수선택)',
+          options: ['볼', '코', '이마', '턱·입가', '광대'],
+          qid: 'pigment_4',
+          isMulti: true
+        },
+        {
+          question: '상처 자국이 지속되는 기간은?',
+          options: ['며칠', '1~2주', '3~4주', '1달+'],
+          qid: 'pigment_5'
+        },
+        {
+          question: '잡티/기미 가족력은?',
+          options: ['있다', '모름', '없다'],
+          qid: 'pigment_6'
+        },
+        {
+          question: '햇빛 30분~1시간 노출 시 반응은?',
+          options: ['쉽게 빨개지고 탐', '조금 타고 가라앉음', '변화 적음'],
+          qid: 'pigment_7'
+        },
+        // 주름(W/T) 문항들
+        {
+          question: '웃을 때 주름이 풀린 뒤 남는 정도는?',
+          options: ['자주', '가끔', '거의 없음'],
+          qid: 'wrinkle_1'
+        },
+        {
+          question: '팔자/마리오네트 라인은?',
+          options: ['뚜렷', '약간', '없음'],
+          qid: 'wrinkle_2'
+        },
+        {
+          question: '메이크업이 주름에 끼는 정도는?',
+          options: ['자주', '가끔', '없음', '메컵 안 함'],
+          qid: 'wrinkle_3'
+        },
+        {
+          question: '볼을 꼬집었을 때 복귀 속도는?',
+          options: ['느림', '보통', '빠름'],
+          qid: 'wrinkle_4'
+        },
+        {
+          question: '목 주름 정도는?',
+          options: ['뚜렷', '약간', '없음'],
+          qid: 'wrinkle_5'
+        },
+        {
+          question: '턱선·볼 처짐 정도는?',
+          options: ['뚜렷', '약간', '없음'],
+          qid: 'wrinkle_6'
+        }
+      ]
+      
+      const currentQuestion = questions[pageIndex]
+      if (!currentQuestion) {
+        return <div className="placeholder-content">문항을 찾을 수 없습니다.</div>
+      }
+      
+      return (
+        <div className="single-question">
+          <h3 className="question-title">{currentQuestion.question}</h3>
+          {currentQuestion.isMulti && (
+            <div className="question-subtitle">복수 선택 가능</div>
+          )}
+          <div className="choice-grid">
+            {currentQuestion.options.map((option) => (
+              <ChoiceCard
+                key={option}
+                selected={isOptionSelected(surveyState.answers[currentQuestion.qid], option)}
+                onClick={() => {
+                  if (currentQuestion.isMulti) {
+                    const nextValues = toggleMultiValues(
+                      isMulti(surveyState.answers[currentQuestion.qid]) 
+                        ? (surveyState.answers[currentQuestion.qid] as any).values 
+                        : undefined, 
+                      option
+                    )
+                    updateAnswer(currentQuestion.qid, { type: 'multi', qid: currentQuestion.qid, values: nextValues })
+                  } else {
+                    updateAnswer(currentQuestion.qid, { type: 'single', qid: currentQuestion.qid, value: option })
+                  }
+                }}
+              >
+                {option}
+              </ChoiceCard>
+            ))}
+          </div>
         </div>
       )
     }
