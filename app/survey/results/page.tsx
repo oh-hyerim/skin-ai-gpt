@@ -49,7 +49,7 @@ export default function SurveyResultsPage() {
         </button>
         <button 
           className="results-btn primary"
-          onClick={() => router.push('/products')}
+          onClick={() => router.push('/')}
         >
           제품 추천
         </button>
