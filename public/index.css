@@ -687,9 +687,152 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f2f2f2; pa
 
 .no-products {
   text-align: center;
-  color: #888;
-  font-style: italic;
-  padding: 20px;
+  color: #666;
+  padding: 40px 20px;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.empty-subtitle {
+  font-size: 0.875rem;
+  color: #999;
+  margin-top: 8px;
+}
+
+/* 제품 등록 인트로 */
+.product-intro {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.intro-message h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.intro-description {
+  font-size: 1.125rem;
+  color: #006FFF;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.intro-subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 32px;
+}
+
+.intro-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.benefit-icon {
+  font-size: 1.25rem;
+}
+
+/* 제품 등록 방법 */
+.registration-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.registration-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.registration-header p {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.registration-methods {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.method-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px 16px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.method-card:hover {
+  border-color: #006FFF;
+  box-shadow: 0 2px 8px rgba(0, 111, 255, 0.1);
+}
+
+.method-icon {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.method-card h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.method-card p {
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.method-btn {
+  width: 100%;
+  padding: 10px 16px;
+  background: #006FFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.method-btn:hover {
+  background: #0056cc;
+}
+
+.registered-products h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+  text-align: center;
 }
 
 /* App container */

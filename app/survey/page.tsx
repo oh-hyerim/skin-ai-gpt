@@ -1164,26 +1164,84 @@ export default function SurveyPage() {
     
     // 섹션 6: 제품 등록
     if (sectionIndex === 6) {
+      if (pageIndex === 0) {
+        // 첫 번째 페이지: 안내문
+        return (
+          <div className="product-intro">
+            <div className="intro-message">
+              <h3>제품 등록</h3>
+              <p className="intro-description">
+                루틴 추천은 내 제품 등록 후 진행됩니다.
+              </p>
+              <p className="intro-subtitle">
+                현재 사용 중인 스킨케어 제품을 등록해주세요.
+              </p>
+            </div>
+            <div className="intro-benefits">
+              <div className="benefit-item">
+                <span className="benefit-icon">✨</span>
+                <span>개인 맞춤 루틴 추천</span>
+              </div>
+              <div className="benefit-item">
+                <span className="benefit-icon">📊</span>
+                <span>제품별 효과 분석</span>
+              </div>
+              <div className="benefit-item">
+                <span className="benefit-icon">🎯</span>
+                <span>최적의 사용법 제안</span>
+              </div>
+            </div>
+          </div>
+        )
+      }
+      
       if (pageIndex === 1) {
+        // 두 번째 페이지: 제품 등록
         return (
           <div className="product-registration">
-            <div className="product-upload-area">
-              <div className="upload-placeholder">
-                <div className="upload-icon">📷</div>
-                <p>제품 사진을 업로드하거나</p>
-                <p>검색으로 등록해주세요</p>
+            <div className="registration-header">
+              <h3>제품 등록 방법</h3>
+              <p>아래 방법 중 편한 방법으로 제품을 등록해주세요</p>
+            </div>
+            
+            <div className="registration-methods">
+              <div className="method-card">
+                <div className="method-icon">📷</div>
+                <h4>촬영 업로드</h4>
+                <p>제품을 직접 촬영하여 등록</p>
+                <button className="method-btn camera">카메라로 촬영</button>
               </div>
-              <div className="upload-buttons">
-                <button className="upload-btn camera">카메라로 촬영</button>
-                <button className="upload-btn gallery">갤러리에서 선택</button>
-                <button className="upload-btn search">제품 검색</button>
+              
+              <div className="method-card">
+                <div className="method-icon">🖼️</div>
+                <h4>갤러리 선택</h4>
+                <p>저장된 제품 사진으로 등록</p>
+                <button className="method-btn gallery">갤러리에서 선택</button>
+              </div>
+              
+              <div className="method-card">
+                <div className="method-icon">🔍</div>
+                <h4>검색 등록</h4>
+                <p>제품명으로 검색하여 등록</p>
+                <button className="method-btn search">제품 검색</button>
+              </div>
+              
+              <div className="method-card">
+                <div className="method-icon">✏️</div>
+                <h4>수동 등록</h4>
+                <p>제품 정보를 직접 입력</p>
+                <button className="method-btn manual">수동 입력</button>
               </div>
             </div>
             
             <div className="registered-products">
-              <h4>등록된 제품</h4>
+              <h4>등록된 제품 (0개)</h4>
               <div className="product-list">
-                <p className="no-products">아직 등록된 제품이 없습니다</p>
+                <div className="no-products">
+                  <span className="empty-icon">📦</span>
+                  <p>아직 등록된 제품이 없습니다</p>
+                  <p className="empty-subtitle">위의 방법으로 제품을 등록해주세요</p>
+                </div>
               </div>
             </div>
           </div>
