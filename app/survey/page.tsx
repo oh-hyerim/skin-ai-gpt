@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 
 // 타입 정의
@@ -175,6 +175,16 @@ export default function SurveyPage() {
   }))
   const [showProductModal, setShowProductModal] = useState(false)
 
+  // DOM 안정성을 위한 useEffect
+  useEffect(() => {
+    // 상태 변경 후 DOM이 안정화될 때까지 대기
+    const timeoutId = setTimeout(() => {
+      // DOM 정리 작업이 필요한 경우 여기서 처리
+    }, 0)
+    
+    return () => clearTimeout(timeoutId)
+  }, [surveyState.sectionIndex, surveyState.pageIndex])
+
   // 현재 페이지 정보 계산
   const getCurrentPageInfo = () => {
     const { sectionIndex, pageIndex } = surveyState
@@ -228,10 +238,10 @@ export default function SurveyPage() {
     return { type: 'unknown', title: '알 수 없음' }
   }
 
-  const currentPageInfo = getCurrentPageInfo()
+  const currentPageInfo = useMemo(() => getCurrentPageInfo(), [surveyState.sectionIndex, surveyState.pageIndex])
 
   // 답변 업데이트 함수
-  const updateAnswer = (qid: string, answer: Answer) => {
+  const updateAnswer = useCallback((qid: string, answer: Answer) => {
     setSurveyState(prev => {
       if (!prev) return prev
       try {
@@ -247,10 +257,10 @@ export default function SurveyPage() {
         return prev
       }
     })
-  }
+  }, [])
 
   // 다음 페이지로 이동
-  const goToNext = () => {
+  const goToNext = useCallback(() => {
     try {
       // 섹션 6에서 제품 등록 모달 표시
       if (surveyState.sectionIndex === 6 && surveyState.pageIndex === 0) {
@@ -286,10 +296,10 @@ export default function SurveyPage() {
     } catch (error) {
       console.error('Error in goToNext function:', error)
     }
-  }
+  }, [surveyState.sectionIndex, surveyState.pageIndex, router])
 
   // 이전 페이지로 이동
-  const goToPrev = () => {
+  const goToPrev = useCallback(() => {
     try {
       setSurveyState(prev => {
         if (!prev) return prev
@@ -315,7 +325,7 @@ export default function SurveyPage() {
     } catch (error) {
       console.error('Error in goToPrev function:', error)
     }
-  }
+  }, [])
 
   // 섹션별 최대 페이지 수
   const getMaxPagesInSection = (sectionIndex: number): number => {
@@ -406,7 +416,7 @@ export default function SurveyPage() {
   }
 
   // 제품 등록 모달 처리
-  const handleProductModalConfirm = () => {
+  const handleProductModalConfirm = useCallback(() => {
     try {
       setShowProductModal(false)
       setSurveyState(prev => {
@@ -421,12 +431,12 @@ export default function SurveyPage() {
     } catch (error) {
       console.error('Error in handleProductModalConfirm function:', error)
     }
-  }
+  }, [])
 
-  const handleProductModalSkip = () => {
+  const handleProductModalSkip = useCallback(() => {
     setShowProductModal(false)
     router.push('/survey/results')
-  }
+  }, [router])
 
   return (
     <div className="survey-container">
