@@ -4,7 +4,6 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import BackButton from '../components/BackButton'
 
 function HomePageContent() {
   const [mounted, setMounted] = useState(false)

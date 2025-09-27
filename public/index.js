@@ -773,7 +773,18 @@ onReady(() => {
         if (PAGES.length === 1) return; // safeguard
         PAGES.pop();
         const wrapper = document.getElementById('pagesWrapper');
-        if (wrapper && wrapper.lastChild) wrapper.removeChild(wrapper.lastChild);
+        if (wrapper && wrapper.lastChild && wrapper.contains(wrapper.lastChild)) {
+            try {
+                wrapper.removeChild(wrapper.lastChild);
+            } catch (error) {
+                log('[deletePageBtn] DOM 조작 에러:', error);
+                // 에러 발생 시 innerHTML로 대체
+                const children = Array.from(wrapper.children);
+                if (children.length > 0) {
+                    children[children.length - 1].remove();
+                }
+            }
+        }
         currentPageIdx = Math.max(0, currentPageIdx - 1);
         refreshPage();
         localStorage.setItem('pageCount', PAGES.length);
@@ -1912,7 +1923,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (deletePageBtn) deletePageBtn.addEventListener('click', () => {
         if (PAGES.length === 1) return; // safeguard
         PAGES.pop();
-        pagesWrapper.removeChild(pagesWrapper.lastChild);
+        if (pagesWrapper && pagesWrapper.lastChild && pagesWrapper.contains(pagesWrapper.lastChild)) {
+            try {
+                pagesWrapper.removeChild(pagesWrapper.lastChild);
+            } catch (error) {
+                log('[deletePageBtn] DOM 조작 에러 (중복):', error);
+                // 에러 발생 시 remove() 메서드 사용
+                const children = Array.from(pagesWrapper.children);
+                if (children.length > 0) {
+                    children[children.length - 1].remove();
+                }
+            }
+        }
         currentPageIdx = Math.max(0, currentPageIdx - 1);
         refreshPage();
         localStorage.setItem('pageCount', PAGES.length);
