@@ -266,13 +266,18 @@ function HomePageContent() {
 
       {/* 메뉴 뷰 */}
       {currentView === 'menu' && (
-        <div id="menuView" className="menu-view active" style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'white', zIndex: 1000}}>
+        <div id="menuView" className="menu-view active" style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: '#d9d9d9', zIndex: 1000}}>
           <header className="menu-header">
-            <div className="menu-bar">
-              <BackButton fallbackUrl="/?view=main">← 뒤로</BackButton>
+            <BackButton fallbackUrl="/?view=main">← 뒤로</BackButton>
+            <div className="menu-login-bar">
               {session?.user ? (
                 <div className="user-info">
-                  <span className="user-email">{session.user.email}</span>
+                  <span 
+                    className="user-email clickable" 
+                    onClick={() => navigateToView('settings')}
+                  >
+                    {session.user.email}
+                  </span>
                 </div>
               ) : (
                 <Link href="/login" className="login-btn">로그인</Link>
@@ -280,18 +285,56 @@ function HomePageContent() {
             </div>
           </header>
           <div className="menu-grid">
-            <button className="circle-btn" onClick={() => navigateToView('analysis')}>분석</button>
-            <Link href="/community" className="circle-btn">커뮤니티</Link>
-            <button className="circle-btn" onClick={() => navigateToView('shop')}>상점</button>
-            <button className="circle-btn" data-go="camera">카메라</button>
-            <button className="circle-btn" data-go="gallery">갤러리</button>
-            <button className="circle-btn" data-go="alarm">알람</button>
-            <button className="circle-btn" onClick={() => navigateToView('settings')}>설정</button>
-            <button className="circle-btn disabled"></button>
-            <button className="circle-btn disabled"></button>
-            <button className="circle-btn disabled"></button>
-            <button className="circle-btn disabled"></button>
-            <button className="circle-btn disabled"></button>
+            <div className="menu-item">
+              <button className="circle-btn" onClick={() => navigateToView('analysis')}>
+                분석
+              </button>
+              <span className="menu-label">분석</span>
+            </div>
+            <div className="menu-item">
+              <Link href="/community" className="circle-btn">
+                커뮤니티
+              </Link>
+              <span className="menu-label">커뮤니티</span>
+            </div>
+            <div className="menu-item">
+              <button className="circle-btn" onClick={() => navigateToView('shop')}>
+                상점
+              </button>
+              <span className="menu-label">상점</span>
+            </div>
+            <div className="menu-item">
+              <button className="circle-btn" data-go="camera">
+                카메라
+              </button>
+              <span className="menu-label">카메라</span>
+            </div>
+            <div className="menu-item">
+              <button className="circle-btn" data-go="gallery">
+                갤러리
+              </button>
+              <span className="menu-label">갤러리</span>
+            </div>
+            <div className="menu-item">
+              <button className="circle-btn" data-go="alarm">
+                알람
+              </button>
+              <span className="menu-label">알람</span>
+            </div>
+            <div className="menu-item">
+              <button className="circle-btn" onClick={() => navigateToView('settings')}>
+                설정
+              </button>
+              <span className="menu-label">설정</span>
+            </div>
+            <div className="menu-item">
+              <button className="circle-btn disabled"></button>
+              <span className="menu-label"></span>
+            </div>
+            <div className="menu-item">
+              <button className="circle-btn disabled"></button>
+              <span className="menu-label"></span>
+            </div>
           </div>
         </div>
       )}

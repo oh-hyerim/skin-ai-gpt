@@ -256,8 +256,26 @@ onReady(() => {
         const entry = readSupabaseSession();
 		let email = entry && entry.session && entry.session.user && entry.session.user.email ? entry.session.user.email : '';
 		if (!email) { email = getBackupEmail(); }
-        const emailSpan = menuView && menuView.querySelector('.menu-bar span');
-        if (emailSpan) emailSpan.textContent = email || '';
+        const emailSpan = menuView && menuView.querySelector('.user-email');
+        if (emailSpan) {
+            emailSpan.textContent = email || '';
+            // 이메일 클릭 시 설정 화면으로 이동하는 이벤트 추가
+            if (email && !emailSpan.hasAttribute('data-click-bound')) {
+                emailSpan.setAttribute('data-click-bound', 'true');
+                emailSpan.addEventListener('click', () => {
+                    log('[menu] 이메일 클릭 - 설정 화면으로 이동');
+                    // 모든 뷰 숨김
+                    if (pageView) pageView.classList.add('hidden');
+                    if (analysisView) analysisView.classList.add('hidden');
+                    if (shopView) shopView.classList.add('hidden');
+                    if (menuView) menuView.classList.add('hidden');
+                    // 설정 뷰 표시
+                    const settingsView = document.getElementById('settingsView');
+                    if (settingsView) settingsView.classList.remove('hidden');
+                    if (app) app.classList.remove('analysis-mode');
+                });
+            }
+        }
     }
 
     function hookSettingsLogoutItem(){
