@@ -164,10 +164,23 @@ onReady(() => {
 
         if (!btn) return;
 
-        // 중복 바인딩 제거: 기존 핸들러 제거 후 새로 등록
-        const cloned = btn.cloneNode(true);
-        btn.parentNode.replaceChild(cloned, btn);
-        const loginBtn = cloned;
+        // 중복 바인딩 제거: 안전한 방식으로 기존 핸들러 제거 후 새로 등록
+        let loginBtn = btn;
+        if (btn.parentNode) {
+            try {
+                const cloned = btn.cloneNode(true);
+                btn.parentNode.replaceChild(cloned, btn);
+                loginBtn = cloned;
+            } catch (error) {
+                log('[bindLoginButton] DOM 조작 에러, 기존 버튼 사용:', error);
+                // DOM 조작 실패 시 기존 버튼 사용하되 이벤트 리스너만 제거
+                const newBtn = btn.cloneNode(true);
+                if (btn.parentNode && btn.parentNode.contains(btn)) {
+                    btn.parentNode.replaceChild(newBtn, btn);
+                    loginBtn = newBtn;
+                }
+            }
+        }
 
         loginBtn.addEventListener('click', (e)=>{
             e.preventDefault?.();
@@ -195,9 +208,13 @@ onReady(() => {
         const signupBtnEl = btns[1];
 		const settingsEmailEl = document.getElementById('settingsEmail');
         if (!loginBtnEl || !signupBtnEl) return;
-        // 기존 리스너 제거 (onclick으로 대체)
-        loginBtnEl.replaceWith(loginBtnEl.cloneNode(true));
-        signupBtnEl.replaceWith(signupBtnEl.cloneNode(true));
+        // 기존 리스너 제거 (안전한 방식으로)
+        try {
+            loginBtnEl.replaceWith(loginBtnEl.cloneNode(true));
+            signupBtnEl.replaceWith(signupBtnEl.cloneNode(true));
+        } catch (error) {
+            log('[bindSettingsAuthButtons] DOM 조작 에러:', error);
+        }
         const loginBtnNew = card.querySelectorAll('button')[0];
         const signupBtnNew = card.querySelectorAll('button')[1];
         const entry = readSupabaseSession();
@@ -249,14 +266,26 @@ onReady(() => {
         const items = settingsViewEl.querySelectorAll('.settings-item');
         items.forEach((btn)=>{
             if (btn.textContent && btn.textContent.trim() === '로그아웃') {
-                // 기존 리스너 방지
-                const clone = btn.cloneNode(true);
-                btn.parentNode.replaceChild(clone, btn);
-                clone.addEventListener('click', () => {
-                    clearSupabaseSessions();
-					clearBackupEmail();
-                    window.location.href = '/';
-                });
+                // 기존 리스너 방지 (안전한 방식으로)
+                try {
+                    if (btn.parentNode && btn.parentNode.contains(btn)) {
+                        const clone = btn.cloneNode(true);
+                        btn.parentNode.replaceChild(clone, btn);
+                        clone.addEventListener('click', () => {
+                            clearSupabaseSessions();
+                            clearBackupEmail();
+                            window.location.href = '/';
+                        });
+                    }
+                } catch (error) {
+                    log('[hookSettingsLogoutItem] DOM 조작 에러:', error);
+                    // 에러 발생 시 기존 버튼에 직접 이벤트 추가
+                    btn.addEventListener('click', () => {
+                        clearSupabaseSessions();
+                        clearBackupEmail();
+                        window.location.href = '/';
+                    });
+                }
             }
         });
     }
