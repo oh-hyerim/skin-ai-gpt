@@ -222,7 +222,7 @@ export default function SurveyPage() {
     
     // 섹션 4: 생활습관
     if (sectionIndex === 4) {
-      return { type: 'lifestyle', title: '생활·행동 습관' }
+      return { type: 'lifestyle', title: '보조 지표 & 생활습관' }
     }
     
     // 섹션 5: 사진 업로드
@@ -334,7 +334,7 @@ export default function SurveyPage() {
       case 1: return 5 // 관심사 & 선호
       case 2: return 12 // 바우만 16타입 (6개 D/O + 6개 S/R)
       case 3: return 13 // 정밀 분석 (색소 7개 + 주름 6개)
-      case 4: return 15 // 생활습관
+      case 4: return 16 // 생활습관 (26-41번 문항)
       case 5: return 2 // 사진 업로드
       case 6: return 2 // 제품 등록
       default: return 1
@@ -406,6 +406,22 @@ export default function SurveyPage() {
       
       // pigment_4 문항(분포 부위)은 복수선택
       if (currentQid === 'pigment_4') {
+        return !isMulti(surveyState.answers[currentQid]) || (surveyState.answers[currentQid] as any)?.values?.length === 0
+      }
+      
+      return !isSingle(surveyState.answers[currentQid])
+    }
+    
+    // 섹션 4: 생활습관 (각 문항별 검증)
+    if (sectionIndex === 4) {
+      const questionIds = [
+        'lifestyle_1', 'lifestyle_2', 'lifestyle_3', 'lifestyle_4', 'lifestyle_5', 'lifestyle_6', 'lifestyle_7', 'lifestyle_8',
+        'lifestyle_9', 'lifestyle_10', 'lifestyle_11', 'lifestyle_12', 'lifestyle_13', 'lifestyle_14', 'lifestyle_15', 'lifestyle_16'
+      ]
+      const currentQid = questionIds[pageIndex]
+      
+      // lifestyle_16 문항(얼굴 만지는 상황)은 복수선택
+      if (currentQid === 'lifestyle_16') {
         return !isMulti(surveyState.answers[currentQid]) || (surveyState.answers[currentQid] as any)?.values?.length === 0
       }
       
@@ -852,6 +868,130 @@ export default function SurveyPage() {
           options: ['뚜렷', '약간', '없음'],
           qid: 'wrinkle_6',
           category: '주름'
+        }
+      ]
+      
+      const currentQuestion = questions[pageIndex]
+      if (!currentQuestion) {
+        return <div className="placeholder-content">문항을 찾을 수 없습니다.</div>
+      }
+      
+      return (
+        <div className="single-question">
+          <h3 className="question-title">{currentQuestion.question}</h3>
+          {currentQuestion.isMulti && (
+            <div className="question-subtitle">복수 선택 가능</div>
+          )}
+          <div className="choice-grid">
+            {currentQuestion.options.map((option) => (
+              <ChoiceCard
+                key={option}
+                selected={isOptionSelected(surveyState.answers[currentQuestion.qid], option)}
+                onClick={() => {
+                  if (currentQuestion.isMulti) {
+                    const nextValues = toggleMultiValues(
+                      isMulti(surveyState.answers[currentQuestion.qid]) 
+                        ? (surveyState.answers[currentQuestion.qid] as any).values 
+                        : undefined, 
+                      option
+                    )
+                    updateAnswer(currentQuestion.qid, { type: 'multi', qid: currentQuestion.qid, values: nextValues })
+                  } else {
+                    updateAnswer(currentQuestion.qid, { type: 'single', qid: currentQuestion.qid, value: option })
+                  }
+                }}
+              >
+                {option}
+              </ChoiceCard>
+            ))}
+          </div>
+        </div>
+      )
+    }
+    
+    // 섹션 4: 생활습관 (한 페이지에 한 문항)
+    if (sectionIndex === 4) {
+      const questions = [
+        {
+          question: '26. 세안 후 각질은?',
+          options: ['자주', '가끔', '없음'],
+          qid: 'lifestyle_1'
+        },
+        {
+          question: '27. 블랙·화이트헤드는?',
+          options: ['심함', '보통', '적음', '없음'],
+          qid: 'lifestyle_2'
+        },
+        {
+          question: '28. 모공 크기는?',
+          options: ['매우 큼', '보통', '작음'],
+          qid: 'lifestyle_3'
+        },
+        {
+          question: '29. 피부과 병변 경험은?',
+          options: ['자주', '가끔', '없음'],
+          qid: 'lifestyle_4'
+        },
+        {
+          question: '30. 수면 시간은?',
+          options: ['≤5h', '6~7h', '8h 이상', '불규칙'],
+          qid: 'lifestyle_5'
+        },
+        {
+          question: '31. 수면 질은?',
+          options: ['자주 깸', '가끔', '숙면'],
+          qid: 'lifestyle_6'
+        },
+        {
+          question: '32. 근무 환경은?',
+          options: ['실외 잦음', '실내(강한 공조)', '실내(보통)'],
+          qid: 'lifestyle_7'
+        },
+        {
+          question: '33. 햇빛 노출 시간은?',
+          options: ['<30m', '30m~1h', '1~2h', '3h 이상'],
+          qid: 'lifestyle_8'
+        },
+        {
+          question: '34. 식습관은?',
+          options: ['인스턴트 중심', '보통 한식', '채소·과일 위주'],
+          qid: 'lifestyle_9'
+        },
+        {
+          question: '35. 물 섭취량은?',
+          options: ['<1L', '1~2L', '2L 이상'],
+          qid: 'lifestyle_10'
+        },
+        {
+          question: '36. 스트레스가 피부에 미치는 영향은?',
+          options: ['즉각 트러블', '약간', '거의 없음'],
+          qid: 'lifestyle_11'
+        },
+        {
+          question: '37. 세안 습관은?',
+          options: ['하루2회 꼼꼼', '하루1회or불규칙', '거의 안 함'],
+          qid: 'lifestyle_12'
+        },
+        {
+          question: '38. 침구 교체 주기는?',
+          options: ['주1회+', '2주~1달', '1달 이상 교체하지 않음'],
+          qid: 'lifestyle_13'
+        },
+        {
+          question: '39. 손 위생은?',
+          options: ['자주', '가끔', '거의 안 씻음'],
+          qid: 'lifestyle_14'
+        },
+        {
+          question: '40. 얼굴 만지는 빈도는?',
+          options: ['자주', '가끔', '거의 안 함'],
+          qid: 'lifestyle_15'
+        },
+        {
+          question: '41. 얼굴 만지는 상황은?',
+          options: ['턱 괴기', '눈·이마 비비기', '피부 확인', '무의식 습관'],
+          qid: 'lifestyle_16',
+          isMulti: true
         }
       ]
       
