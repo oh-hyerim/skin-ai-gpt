@@ -225,13 +225,16 @@ export default function SurveyPage() {
 
   // 답변 업데이트 함수
   const updateAnswer = (qid: string, answer: Answer) => {
-    setSurveyState(prev => ({
-      ...prev,
-      answers: {
-        ...prev.answers,
-        [qid]: answer
+    setSurveyState(prev => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        answers: {
+          ...prev.answers,
+          [qid]: answer
+        }
       }
-    }))
+    })
   }
 
   // 다음 페이지로 이동
@@ -250,6 +253,8 @@ export default function SurveyPage() {
     
     // 일반적인 다음 페이지 로직
     setSurveyState(prev => {
+      if (!prev) return prev
+      
       const maxPagesInSection = getMaxPagesInSection(prev.sectionIndex)
       
       if (prev.pageIndex < maxPagesInSection - 1) {
@@ -265,6 +270,8 @@ export default function SurveyPage() {
   // 이전 페이지로 이동
   const goToPrev = () => {
     setSurveyState(prev => {
+      if (!prev) return prev
+      
       if (prev.pageIndex > 0) {
         return { ...prev, pageIndex: prev.pageIndex - 1 }
       } else if (prev.sectionIndex > 0) {
@@ -353,7 +360,10 @@ export default function SurveyPage() {
   // 제품 등록 모달 처리
   const handleProductModalConfirm = () => {
     setShowProductModal(false)
-    setSurveyState(prev => ({ ...prev, pageIndex: 1 }))
+    setSurveyState(prev => {
+      if (!prev) return prev
+      return { ...prev, pageIndex: 1 }
+    })
   }
 
   const handleProductModalSkip = () => {
@@ -364,7 +374,7 @@ export default function SurveyPage() {
   return (
     <div className="survey-container">
       {/* 프로그레스 바 - 기본 정보 페이지에서는 숨김 */}
-      {!(surveyState.sectionIndex === 0 && surveyState.pageIndex === 0) && (
+      {surveyState.sectionIndex > 0 && (
         <ProgressSteps currentSectionIndex={surveyState.sectionIndex - 1} />
       )}
       
@@ -374,7 +384,7 @@ export default function SurveyPage() {
       </div>
 
       {/* 페이지 내용 */}
-      <div className="survey-content">
+      <div className="survey-content" key={`${surveyState.sectionIndex}-${surveyState.pageIndex}`}>
         {renderCurrentPage()}
       </div>
 
