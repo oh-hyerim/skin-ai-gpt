@@ -293,7 +293,7 @@ function HomePageContent() {
             </div>
             <div className="menu-item">
               <button className="circle-btn coming-soon" disabled>
-                Coming Soon
+                <span>Coming<br/>Soon</span>
               </button>
               <span className="menu-label">커뮤니티</span>
             </div>
@@ -305,19 +305,19 @@ function HomePageContent() {
             </div>
             <div className="menu-item">
               <button className="circle-btn coming-soon" disabled>
-                Coming Soon
+                <span>Coming<br/>Soon</span>
               </button>
               <span className="menu-label">카메라</span>
             </div>
             <div className="menu-item">
               <button className="circle-btn coming-soon" disabled>
-                Coming Soon
+                <span>Coming<br/>Soon</span>
               </button>
               <span className="menu-label">갤러리</span>
             </div>
             <div className="menu-item">
               <button className="circle-btn coming-soon" disabled>
-                Coming Soon
+                <span>Coming<br/>Soon</span>
               </button>
               <span className="menu-label">알람</span>
             </div>
