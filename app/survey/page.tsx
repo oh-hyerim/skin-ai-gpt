@@ -302,7 +302,51 @@ export default function SurveyPage() {
 
   // 다음 버튼 활성화 여부 확인
   const isNextDisabled = () => {
-    // 각 페이지별 검증 로직 구현 필요
+    const { sectionIndex, pageIndex } = surveyState
+    
+    // 인트로 페이지 (성별/나이대)
+    if (sectionIndex === 0 && pageIndex === 0) {
+      const genderSelected = surveyState.answers.gender && isSingle(surveyState.answers.gender)
+      const ageSelected = surveyState.answers.age && isSingle(surveyState.answers.age)
+      return !genderSelected || !ageSelected
+    }
+    
+    // 섹션 1: 관심사 & 선호
+    if (sectionIndex === 1) {
+      if (pageIndex === 0) { // Q1 - 점수제
+        const ans = surveyState.answers.q1
+        if (!isScore10(ans)) return true
+        const total = ans.items.reduce((sum, item) => sum + item.score, 0)
+        return total !== 10
+      }
+      if (pageIndex === 1) { // Q2 - 복수선택
+        const ans = surveyState.answers.q2
+        return !isMulti(ans) || ans.values.length === 0
+      }
+      if (pageIndex === 2) { // Q3 - 복수선택
+        const ans = surveyState.answers.q3
+        return !isMulti(ans) || ans.values.length === 0
+      }
+      if (pageIndex === 3) { // Q4 - 점수제
+        const ans = surveyState.answers.q4
+        if (!isScore10(ans)) return true
+        const total = ans.items.reduce((sum, item) => sum + item.score, 0)
+        return total !== 10
+      }
+      if (pageIndex === 4) { // Q5 - 단일선택
+        const ans = surveyState.answers.q5
+        return !isSingle(ans)
+      }
+    }
+    
+    // 섹션 2: 바우만 16타입
+    if (sectionIndex === 2) {
+      if (pageIndex === 0) {
+        const questions = ['baumann_do_1', 'baumann_do_2', 'baumann_do_3']
+        return questions.some(qid => !isSingle(surveyState.answers[qid]))
+      }
+    }
+    
     return false
   }
 
@@ -319,8 +363,10 @@ export default function SurveyPage() {
 
   return (
     <div className="survey-container">
-      {/* 프로그레스 바 */}
-      <ProgressSteps currentSectionIndex={surveyState.sectionIndex} />
+      {/* 프로그레스 바 - 기본 정보 페이지에서는 숨김 */}
+      {!(surveyState.sectionIndex === 0 && surveyState.pageIndex === 0) && (
+        <ProgressSteps currentSectionIndex={surveyState.sectionIndex - 1} />
+      )}
       
       {/* 페이지 제목 */}
       <div className="survey-header">
@@ -437,47 +483,53 @@ export default function SurveyPage() {
       }
       
       if (pageIndex === 1) {
-        // Q2. 스킨케어 제품을 고를 때 신경 쓰는 점
+        // Q2. 스킨케어 제품을 고를 때 신경 쓰는 점 (복수선택)
         const options = ['산뜻한 제형', '충분한 보습감', '무향 선호', '자연·저자극 성분', '가성비', '프리미엄 브랜드']
         const ans = surveyState.answers.q2
         
         return (
-          <div className="choice-grid">
-            {options.map((option) => (
-              <ChoiceCard
-                key={option}
-                selected={isOptionSelected(ans, option)}
-                onClick={() => {
-                  const nextValues = toggleMultiValues(isMulti(ans) ? ans.values : undefined, option)
-                  updateAnswer('q2', { type: 'multi', qid: 'q2', values: nextValues })
-                }}
-              >
-                {option}
-              </ChoiceCard>
-            ))}
+          <div>
+            <div className="question-subtitle">복수 선택 가능</div>
+            <div className="choice-grid">
+              {options.map((option) => (
+                <ChoiceCard
+                  key={option}
+                  selected={isOptionSelected(ans, option)}
+                  onClick={() => {
+                    const nextValues = toggleMultiValues(isMulti(ans) ? ans.values : undefined, option)
+                    updateAnswer('q2', { type: 'multi', qid: 'q2', values: nextValues })
+                  }}
+                >
+                  {option}
+                </ChoiceCard>
+              ))}
+            </div>
           </div>
         )
       }
       
       if (pageIndex === 2) {
-        // Q3. 스킨케어 단계에 대한 선호
+        // Q3. 스킨케어 단계에 대한 선호 (복수선택)
         const options = ['단계 많아도 꼼꼼히', '최소 단계 선호', '올인원도 괜찮음']
         const ans = surveyState.answers.q3
         
         return (
-          <div className="choice-grid">
-            {options.map((option) => (
-              <ChoiceCard
-                key={option}
-                selected={isOptionSelected(ans, option)}
-                onClick={() => {
-                  const nextValues = toggleMultiValues(isMulti(ans) ? ans.values : undefined, option)
-                  updateAnswer('q3', { type: 'multi', qid: 'q3', values: nextValues })
-                }}
-              >
-                {option}
-              </ChoiceCard>
-            ))}
+          <div>
+            <div className="question-subtitle">복수 선택 가능</div>
+            <div className="choice-grid">
+              {options.map((option) => (
+                <ChoiceCard
+                  key={option}
+                  selected={isOptionSelected(ans, option)}
+                  onClick={() => {
+                    const nextValues = toggleMultiValues(isMulti(ans) ? ans.values : undefined, option)
+                    updateAnswer('q3', { type: 'multi', qid: 'q3', values: nextValues })
+                  }}
+                >
+                  {option}
+                </ChoiceCard>
+              ))}
+            </div>
           </div>
         )
       }
@@ -512,7 +564,7 @@ export default function SurveyPage() {
       }
       
       if (pageIndex === 4) {
-        // Q5. 평소 스킨케어 예산
+        // Q5. 평소 스킨케어 예산 (단일선택)
         const options = ['월 3만 이하', '3~7만', '7~15만', '15만 이상', '그때그때 다름']
         const ans = surveyState.answers.q5
         
@@ -523,8 +575,7 @@ export default function SurveyPage() {
                 key={option}
                 selected={isOptionSelected(ans, option)}
                 onClick={() => {
-                  const nextValues = toggleMultiValues(isMulti(ans) ? ans.values : undefined, option)
-                  updateAnswer('q5', { type: 'multi', qid: 'q5', values: nextValues })
+                  updateAnswer('q5', { type: 'single', qid: 'q5', value: option })
                 }}
               >
                 {option}
