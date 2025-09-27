@@ -13,7 +13,34 @@ type Answer =
 type SurveyState = {
   sectionIndex: 0 | 1 | 2 | 3 | 4 | 5 | 6
   pageIndex: number
-  answers: Record<string, Answer>
+  answers: Record<string, Answer | undefined>
+}
+
+// 안전한 접근을 위한 타입 가드
+function isSingle(a: Answer | undefined): a is Extract<Answer, { type: "single" }> {
+  return a?.type === "single";
+}
+function isMulti(a: Answer | undefined): a is Extract<Answer, { type: "multi" }> {
+  return a?.type === "multi";
+}
+function isScore10(a: Answer | undefined): a is Extract<Answer, { type: "score10" }> {
+  return a?.type === "score10";
+}
+function isFileAns(a: Answer | undefined): a is Extract<Answer, { type: "file" }> {
+  return a?.type === "file";
+}
+
+// 선택 상태 계산 (single/multi 공용)
+function isOptionSelected(ans: Answer | undefined, option: string) {
+  if (isSingle(ans)) return ans.value === option;
+  if (isMulti(ans)) return ans.values.includes(option);
+  return false;
+}
+
+// multi 토글 유틸
+function toggleMultiValues(current: string[] | undefined, option: string) {
+  const base = current ?? [];
+  return base.includes(option) ? base.filter(v => v !== option) : [...base, option];
 }
 
 // 공통 컴포넌트들
@@ -347,7 +374,7 @@ export default function SurveyPage() {
               {['여자', '남자', '기타', '응답안함'].map((option) => (
                 <ChoiceCard
                   key={option}
-                  selected={surveyState.answers.gender?.type === 'single' && surveyState.answers.gender.value === option}
+                  selected={isOptionSelected(surveyState.answers.gender, option)}
                   onClick={() => updateAnswer('gender', { type: 'single', qid: 'gender', value: option })}
                 >
                   {option}
@@ -362,7 +389,7 @@ export default function SurveyPage() {
               {['10대', '20대', '30대', '40대', '50대+'].map((option) => (
                 <ChoiceCard
                   key={option}
-                  selected={surveyState.answers.age?.type === 'single' && surveyState.answers.age.value === option}
+                  selected={isOptionSelected(surveyState.answers.age, option)}
                   onClick={() => updateAnswer('age', { type: 'single', qid: 'age', value: option })}
                 >
                   {option}
@@ -389,8 +416,9 @@ export default function SurveyPage() {
           { key: 'blackhead', label: '블랙/화이트헤드', description: '모공 속 피지·각질 케어' }
         ]
         
-        const currentValues = surveyState.answers.q1?.type === 'score10' 
-          ? surveyState.answers.q1.items.reduce((acc, item) => ({ ...acc, [item.key]: item.score }), {} as Record<string, number>)
+        const ans = surveyState.answers.q1
+        const currentValues = isScore10(ans) 
+          ? ans.items.reduce((acc, item) => ({ ...acc, [item.key]: item.score }), {} as Record<string, number>)
           : {} as Record<string, number>
 
         return (
@@ -411,19 +439,17 @@ export default function SurveyPage() {
       if (pageIndex === 1) {
         // Q2. 스킨케어 제품을 고를 때 신경 쓰는 점
         const options = ['산뜻한 제형', '충분한 보습감', '무향 선호', '자연·저자극 성분', '가성비', '프리미엄 브랜드']
-        const selectedValues = surveyState.answers.q2?.type === 'multi' ? surveyState.answers.q2.values : []
+        const ans = surveyState.answers.q2
         
         return (
           <div className="choice-grid">
             {options.map((option) => (
               <ChoiceCard
                 key={option}
-                selected={selectedValues.includes(option)}
+                selected={isOptionSelected(ans, option)}
                 onClick={() => {
-                  const newValues = selectedValues.includes(option)
-                    ? selectedValues.filter(v => v !== option)
-                    : [...selectedValues, option]
-                  updateAnswer('q2', { type: 'multi', qid: 'q2', values: newValues })
+                  const nextValues = toggleMultiValues(isMulti(ans) ? ans.values : undefined, option)
+                  updateAnswer('q2', { type: 'multi', qid: 'q2', values: nextValues })
                 }}
               >
                 {option}
@@ -436,19 +462,17 @@ export default function SurveyPage() {
       if (pageIndex === 2) {
         // Q3. 스킨케어 단계에 대한 선호
         const options = ['단계 많아도 꼼꼼히', '최소 단계 선호', '올인원도 괜찮음']
-        const selectedValues = surveyState.answers.q3?.type === 'multi' ? surveyState.answers.q3.values : []
+        const ans = surveyState.answers.q3
         
         return (
           <div className="choice-grid">
             {options.map((option) => (
               <ChoiceCard
                 key={option}
-                selected={selectedValues.includes(option)}
+                selected={isOptionSelected(ans, option)}
                 onClick={() => {
-                  const newValues = selectedValues.includes(option)
-                    ? selectedValues.filter(v => v !== option)
-                    : [...selectedValues, option]
-                  updateAnswer('q3', { type: 'multi', qid: 'q3', values: newValues })
+                  const nextValues = toggleMultiValues(isMulti(ans) ? ans.values : undefined, option)
+                  updateAnswer('q3', { type: 'multi', qid: 'q3', values: nextValues })
                 }}
               >
                 {option}
@@ -467,8 +491,9 @@ export default function SurveyPage() {
           { key: 'brand', label: '브랜드' }
         ]
         
-        const currentValues = surveyState.answers.q4?.type === 'score10' 
-          ? surveyState.answers.q4.items.reduce((acc, item) => ({ ...acc, [item.key]: item.score }), {} as Record<string, number>)
+        const ans = surveyState.answers.q4
+        const currentValues = isScore10(ans) 
+          ? ans.items.reduce((acc, item) => ({ ...acc, [item.key]: item.score }), {} as Record<string, number>)
           : {} as Record<string, number>
 
         return (
@@ -489,19 +514,17 @@ export default function SurveyPage() {
       if (pageIndex === 4) {
         // Q5. 평소 스킨케어 예산
         const options = ['월 3만 이하', '3~7만', '7~15만', '15만 이상', '그때그때 다름']
-        const selectedValues = surveyState.answers.q5?.type === 'multi' ? surveyState.answers.q5.values : []
+        const ans = surveyState.answers.q5
         
         return (
           <div className="choice-grid">
             {options.map((option) => (
               <ChoiceCard
                 key={option}
-                selected={selectedValues.includes(option)}
+                selected={isOptionSelected(ans, option)}
                 onClick={() => {
-                  const newValues = selectedValues.includes(option)
-                    ? selectedValues.filter(v => v !== option)
-                    : [...selectedValues, option]
-                  updateAnswer('q5', { type: 'multi', qid: 'q5', values: newValues })
+                  const nextValues = toggleMultiValues(isMulti(ans) ? ans.values : undefined, option)
+                  updateAnswer('q5', { type: 'multi', qid: 'q5', values: nextValues })
                 }}
               >
                 {option}
@@ -543,7 +566,7 @@ export default function SurveyPage() {
                   {q.options.map((option) => (
                     <ChoiceCard
                       key={option}
-                      selected={surveyState.answers[q.qid]?.type === 'single' && surveyState.answers[q.qid].value === option}
+                      selected={isOptionSelected(surveyState.answers[q.qid], option)}
                       onClick={() => updateAnswer(q.qid, { type: 'single', qid: q.qid, value: option })}
                     >
                       {option}
