@@ -313,13 +313,35 @@ onReady(() => {
         bindSettingsAuthButtons();
         hookSettingsLogoutItem();
         updateUserEmailUI();
-		// 설정 하단 로그아웃 항목 표시 토글
+		// 설정 하단 계정 관련 항목들 표시 토글
 		const entry = readSupabaseSession();
-		const isLoggedIn = !!(entry && entry.session && entry.session.user);
-		const logoutBtn = document.getElementById('logoutBtn');
-		if (logoutBtn) {
-			logoutBtn.style.display = isLoggedIn ? '' : 'none';
-		}
+		const backupEmail = getBackupEmail();
+		const hasSession = !!(entry && entry.session && entry.session.user);
+		const isLoggedIn = hasSession || !!backupEmail;
+		
+		// 계정 관련 버튼들 표시/숨김 처리
+		const accountButtons = [
+			'logoutBtn',
+			'nicknameChangeBtn', 
+			'passwordChangeBtn',
+			'withdrawBtn'
+		];
+		
+		accountButtons.forEach(btnId => {
+			const btn = document.getElementById(btnId);
+			if (btn) {
+				btn.style.display = isLoggedIn ? '' : 'none';
+			}
+		});
+		
+		// 클래스명으로도 찾아서 처리 (React 컴포넌트에서 생성된 버튼들)
+		const settingsItems = document.querySelectorAll('.settings-item');
+		settingsItems.forEach(item => {
+			const text = item.textContent?.trim();
+			if (text === '로그아웃' || text === '닉네임 변경' || text === '비밀번호 변경' || text === '회원탈퇴') {
+				item.style.display = isLoggedIn ? '' : 'none';
+			}
+		});
     }
 
     // Next.js 서버 베이스 URL 결정 및 필요 시 사용자 입력 받는 헬퍼

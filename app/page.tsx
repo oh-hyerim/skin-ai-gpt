@@ -378,11 +378,13 @@ function HomePageContent() {
 
         <div className="settings-sep"></div>
         {session?.user && (
-          <button id="logoutBtn" className="settings-item" onClick={handleLogout}>로그아웃</button>
+          <>
+            <button id="logoutBtn" className="settings-item" onClick={handleLogout}>로그아웃</button>
+            <button className="settings-item">닉네임 변경</button>
+            <button className="settings-item">비밀번호 변경</button>
+            <button className="settings-item">회원탈퇴</button>
+          </>
         )}
-        <button className="settings-item">닉네임 변경</button>
-        <button className="settings-item">비밀번호 변경</button>
-        <button className="settings-item">회원탈퇴</button>
         </div>
       )}
 
