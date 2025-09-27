@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, memo, Fragment } from 'react'
+import { flushSync } from 'react-dom'
 import { useRouter } from 'next/navigation'
 
 // 타입 정의
@@ -242,20 +243,22 @@ export default function SurveyPage() {
 
   // 답변 업데이트 함수
   const updateAnswer = useCallback((qid: string, answer: Answer) => {
-    setSurveyState(prev => {
-      if (!prev) return prev
-      try {
-        return {
-          ...prev,
-          answers: {
-            ...prev.answers,
-            [qid]: answer
+    flushSync(() => {
+      setSurveyState(prev => {
+        if (!prev) return prev
+        try {
+          return {
+            ...prev,
+            answers: {
+              ...prev.answers,
+              [qid]: answer
+            }
           }
+        } catch (error) {
+          console.error('Error updating answer:', error)
+          return prev
         }
-      } catch (error) {
-        console.error('Error updating answer:', error)
-        return prev
-      }
+      })
     })
   }, [])
 
@@ -275,23 +278,25 @@ export default function SurveyPage() {
       }
       
       // 일반적인 다음 페이지 로직
-      setSurveyState(prev => {
-        if (!prev) return prev
-        
-        try {
-          const maxPagesInSection = getMaxPagesInSection(prev.sectionIndex)
+      flushSync(() => {
+        setSurveyState(prev => {
+          if (!prev) return prev
           
-          if (prev.pageIndex < maxPagesInSection - 1) {
-            return { ...prev, pageIndex: prev.pageIndex + 1 }
-          } else if (prev.sectionIndex < 6) {
-            return { ...prev, sectionIndex: (prev.sectionIndex + 1) as 0 | 1 | 2 | 3 | 4 | 5 | 6, pageIndex: 0 }
+          try {
+            const maxPagesInSection = getMaxPagesInSection(prev.sectionIndex)
+            
+            if (prev.pageIndex < maxPagesInSection - 1) {
+              return { ...prev, pageIndex: prev.pageIndex + 1 }
+            } else if (prev.sectionIndex < 6) {
+              return { ...prev, sectionIndex: (prev.sectionIndex + 1) as 0 | 1 | 2 | 3 | 4 | 5 | 6, pageIndex: 0 }
+            }
+            
+            return prev
+          } catch (error) {
+            console.error('Error in goToNext:', error)
+            return prev
           }
-          
-          return prev
-        } catch (error) {
-          console.error('Error in goToNext:', error)
-          return prev
-        }
+        })
       })
     } catch (error) {
       console.error('Error in goToNext function:', error)
@@ -301,26 +306,28 @@ export default function SurveyPage() {
   // 이전 페이지로 이동
   const goToPrev = useCallback(() => {
     try {
-      setSurveyState(prev => {
-        if (!prev) return prev
-        
-        try {
-          if (prev.pageIndex > 0) {
-            return { ...prev, pageIndex: prev.pageIndex - 1 }
-          } else if (prev.sectionIndex > 0) {
-            const prevSectionIndex = (prev.sectionIndex - 1) as 0 | 1 | 2 | 3 | 4 | 5 | 6
-            const maxPages = getMaxPagesInSection(prevSectionIndex)
-            return { 
-              ...prev, 
-              sectionIndex: prevSectionIndex, 
-              pageIndex: maxPages - 1 
+      flushSync(() => {
+        setSurveyState(prev => {
+          if (!prev) return prev
+          
+          try {
+            if (prev.pageIndex > 0) {
+              return { ...prev, pageIndex: prev.pageIndex - 1 }
+            } else if (prev.sectionIndex > 0) {
+              const prevSectionIndex = (prev.sectionIndex - 1) as 0 | 1 | 2 | 3 | 4 | 5 | 6
+              const maxPages = getMaxPagesInSection(prevSectionIndex)
+              return { 
+                ...prev, 
+                sectionIndex: prevSectionIndex, 
+                pageIndex: maxPages - 1 
+              }
             }
+            return prev
+          } catch (error) {
+            console.error('Error in goToPrev:', error)
+            return prev
           }
-          return prev
-        } catch (error) {
-          console.error('Error in goToPrev:', error)
-          return prev
-        }
+        })
       })
     } catch (error) {
       console.error('Error in goToPrev function:', error)
@@ -435,14 +442,16 @@ export default function SurveyPage() {
   const handleProductModalConfirm = useCallback(() => {
     try {
       setShowProductModal(false)
-      setSurveyState(prev => {
-        if (!prev) return prev
-        try {
-          return { ...prev, pageIndex: 1 }
-        } catch (error) {
-          console.error('Error in handleProductModalConfirm:', error)
-          return prev
-        }
+      flushSync(() => {
+        setSurveyState(prev => {
+          if (!prev) return prev
+          try {
+            return { ...prev, pageIndex: 1 }
+          } catch (error) {
+            console.error('Error in handleProductModalConfirm:', error)
+            return prev
+          }
+        })
       })
     } catch (error) {
       console.error('Error in handleProductModalConfirm function:', error)
@@ -467,8 +476,10 @@ export default function SurveyPage() {
       </div>
 
       {/* 페이지 내용 */}
-      <div className="survey-content" key={`survey-content-${surveyState.sectionIndex}-${surveyState.pageIndex}`}>
-        {renderCurrentPage()}
+      <div className="survey-content">
+        <div key={`content-${surveyState.sectionIndex}-${surveyState.pageIndex}`}>
+          {renderCurrentPage()}
+        </div>
       </div>
 
       {/* 네비게이션 */}
