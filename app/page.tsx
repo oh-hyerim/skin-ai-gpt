@@ -292,9 +292,9 @@ function HomePageContent() {
               <span className="menu-label">분석</span>
             </div>
             <div className="menu-item">
-              <Link href="/community" className="circle-btn">
-                커뮤니티
-              </Link>
+              <button className="circle-btn coming-soon" disabled>
+                Coming Soon
+              </button>
               <span className="menu-label">커뮤니티</span>
             </div>
             <div className="menu-item">
@@ -304,20 +304,20 @@ function HomePageContent() {
               <span className="menu-label">상점</span>
             </div>
             <div className="menu-item">
-              <button className="circle-btn" data-go="camera">
-                카메라
+              <button className="circle-btn coming-soon" disabled>
+                Coming Soon
               </button>
               <span className="menu-label">카메라</span>
             </div>
             <div className="menu-item">
-              <button className="circle-btn" data-go="gallery">
-                갤러리
+              <button className="circle-btn coming-soon" disabled>
+                Coming Soon
               </button>
               <span className="menu-label">갤러리</span>
             </div>
             <div className="menu-item">
-              <button className="circle-btn" data-go="alarm">
-                알람
+              <button className="circle-btn coming-soon" disabled>
+                Coming Soon
               </button>
               <span className="menu-label">알람</span>
             </div>
