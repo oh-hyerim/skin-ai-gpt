@@ -68,7 +68,12 @@ function HomePageContent() {
           {/* 분석 탭 - 기본 화면 */}
           {currentTab === 'analysis' && (
             <div className="analysis-buttons">
-              <button className="big-btn">프로필</button>
+              <button 
+                className="big-btn"
+                onClick={() => router.push('/survey')}
+              >
+                프로필
+              </button>
               <button className="big-btn">데일리</button>
             </div>
           )}
