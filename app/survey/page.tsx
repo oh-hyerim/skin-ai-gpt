@@ -198,13 +198,16 @@ export default function SurveyPage() {
     
     // 섹션 2: 바우만 16타입
     if (sectionIndex === 2) {
-      const titles = ['수분/유분(Dry/Oil)', '민감성(Sensitive/Resistant)', '색소(Pigmented/Non-pigmented)', '주름/탄력(Wrinkled/Tight)']
-      return { type: 'baumann', title: titles[pageIndex] || '바우만 타입' }
+      // 1-6번 문항: 수분/유분, 7-12번 문항: 민감성
+      const title = pageIndex < 6 ? '수분/유분' : '민감성'
+      return { type: 'baumann', title }
     }
     
     // 섹션 3: 정밀 분석
     if (sectionIndex === 3) {
-      return { type: 'detailed', title: '정밀 분석' }
+      // 13-19번 문항: 색소, 20-25번 문항: 주름
+      const title = pageIndex < 7 ? '색소' : '주름'
+      return { type: 'detailed', title }
     }
     
     // 섹션 4: 생활습관
@@ -627,65 +630,77 @@ export default function SurveyPage() {
       const questions = [
         // D/O (수분/유분) 문항들
         {
-          question: '세안 후 기초제품을 바르는 시간대는?',
+          question: '1. 세안 후 기초제품을 바르는 시간대는?',
           options: ['즉시(1~3분)', '4~10분', '11~30분', '30분+', '거의 안 바름'],
-          qid: 'baumann_do_1'
+          qid: 'baumann_do_1',
+          category: '수분/유분'
         },
         {
-          question: '기초제품 바르고 3시간 후 느낌은?',
+          question: '2. 기초제품 바르고 3시간 후 느낌은?',
           options: ['너무 건조/당김', '약간 건조', '보통', '약간 번들', '심하게 유분'],
-          qid: 'baumann_do_2'
+          qid: 'baumann_do_2',
+          category: '수분/유분'
         },
         {
-          question: '오후 T존 상태는?',
+          question: '3. 오후 T존 상태는?',
           options: ['매우 건조', '약간 건조', '변화 없음', '약간 유분', '매우 유분'],
-          qid: 'baumann_do_3'
+          qid: 'baumann_do_3',
+          category: '수분/유분'
         },
         {
-          question: '오후 U존 상태는?',
+          question: '4. 오후 U존 상태는?',
           options: ['매우 건조', '약간 건조', '보통', '약간 유분', '매우 유분'],
-          qid: 'baumann_do_4'
+          qid: 'baumann_do_4',
+          category: '수분/유분'
         },
         {
-          question: '겨울 보습 도포 횟수는?',
+          question: '5. 겨울 보습 도포 횟수는?',
           options: ['2회 이상', '1회', '거의 안 함'],
-          qid: 'baumann_do_5'
+          qid: 'baumann_do_5',
+          category: '수분/유분'
         },
         {
-          question: '기름 제거 습관은?',
+          question: '6. 기름 제거 습관은?',
           options: ['하루2회+', '하루1회', '거의 없음', '땀 날 때만 누름'],
-          qid: 'baumann_do_6'
+          qid: 'baumann_do_6',
+          category: '수분/유분'
         },
         // S/R (민감성) 문항들
         {
-          question: '새 제품 사용 시 따가움/화끈거림은?',
+          question: '7. 새 제품 사용 시 따가움/화끈거림은?',
           options: ['자주', '가끔', '거의 없음'],
-          qid: 'baumann_sr_1'
+          qid: 'baumann_sr_1',
+          category: '민감성'
         },
         {
-          question: '온도차로 붉어지는 경우는?',
+          question: '8. 온도차로 붉어지는 경우는?',
           options: ['자주', '가끔', '드물게', '거의 없음'],
-          qid: 'baumann_sr_2'
+          qid: 'baumann_sr_2',
+          category: '민감성'
         },
         {
-          question: '여드름 빈도는?',
+          question: '9. 여드름 빈도는?',
           options: ['주1회+', '월1~2회', '몇달1회', '거의 없음'],
-          qid: 'baumann_sr_3'
+          qid: 'baumann_sr_3',
+          category: '민감성'
         },
         {
-          question: '가려움·두드러기는?',
+          question: '10. 가려움·두드러기는?',
           options: ['자주', '가끔', '없음'],
-          qid: 'baumann_sr_4'
+          qid: 'baumann_sr_4',
+          category: '민감성'
         },
         {
-          question: '각질제거제·레티놀 사용 시?',
+          question: '11. 각질제거제·레티놀 사용 시?',
           options: ['바로 자극', '서서히 적응', '문제 없음'],
-          qid: 'baumann_sr_5'
+          qid: 'baumann_sr_5',
+          category: '민감성'
         },
         {
-          question: '기초제품의 향(천연 포함) 자극 경험은?',
+          question: '12. 기초제품의 향(천연 포함) 자극 경험은?',
           options: ['있다', '향 있으나 반응 없음', '둘다 없음'],
-          qid: 'baumann_sr_6'
+          qid: 'baumann_sr_6',
+          category: '민감성'
         }
       ]
       
@@ -717,71 +732,84 @@ export default function SurveyPage() {
       const questions = [
         // 색소(P/N) 문항들
         {
-          question: '자외선 차단제 사용 빈도는?',
+          question: '13. 자외선 차단제 사용 빈도는?',
           options: ['매일2회+', '매일1회', '가끔', '거의 안 함'],
-          qid: 'pigment_1'
+          qid: 'pigment_1',
+          category: '색소'
         },
         {
-          question: '자외선 차단제 재도포는?',
+          question: '14. 자외선 차단제 재도포는?',
           options: ['2시간마다', '하루1회', '거의 안함'],
-          qid: 'pigment_2'
+          qid: 'pigment_2',
+          category: '색소'
         },
         {
-          question: '잡티/기미/주근깨 정도는?',
+          question: '15. 잡티/기미/주근깨 정도는?',
           options: ['없음', '적음', '중간', '넓게 많음'],
-          qid: 'pigment_3'
+          qid: 'pigment_3',
+          category: '색소'
         },
         {
-          question: '잡티/기미 분포 부위는? (복수선택)',
+          question: '16. 잡티/기미 분포 부위는?',
           options: ['볼', '코', '이마', '턱·입가', '광대'],
           qid: 'pigment_4',
-          isMulti: true
+          isMulti: true,
+          category: '색소'
         },
         {
-          question: '상처 자국이 지속되는 기간은?',
+          question: '17. 상처 자국이 지속되는 기간은?',
           options: ['며칠', '1~2주', '3~4주', '1달+'],
-          qid: 'pigment_5'
+          qid: 'pigment_5',
+          category: '색소'
         },
         {
-          question: '잡티/기미 가족력은?',
+          question: '18. 잡티/기미 가족력은?',
           options: ['있다', '모름', '없다'],
-          qid: 'pigment_6'
+          qid: 'pigment_6',
+          category: '색소'
         },
         {
-          question: '햇빛 30분~1시간 노출 시 반응은?',
+          question: '19. 햇빛 30분~1시간 노출 시 반응은?',
           options: ['쉽게 빨개지고 탐', '조금 타고 가라앉음', '변화 적음'],
-          qid: 'pigment_7'
+          qid: 'pigment_7',
+          category: '색소'
         },
         // 주름(W/T) 문항들
         {
-          question: '웃을 때 주름이 풀린 뒤 남는 정도는?',
+          question: '20. 웃을 때 주름이 풀린 뒤 남는 정도는?',
           options: ['자주', '가끔', '거의 없음'],
-          qid: 'wrinkle_1'
+          qid: 'wrinkle_1',
+          category: '주름'
         },
         {
-          question: '팔자/마리오네트 라인은?',
+          question: '21. 팔자/마리오네트 라인은?',
           options: ['뚜렷', '약간', '없음'],
-          qid: 'wrinkle_2'
+          qid: 'wrinkle_2',
+          category: '주름'
         },
         {
-          question: '메이크업이 주름에 끼는 정도는?',
+          question: '22. 메이크업이 주름에 끼는 정도는?',
           options: ['자주', '가끔', '없음', '메컵 안 함'],
-          qid: 'wrinkle_3'
+          qid: 'wrinkle_3',
+          category: '주름'
         },
         {
-          question: '볼을 꼬집었을 때 복귀 속도는?',
+          question: '23. 볼을 꼬집었을 때 복귀 속도는?',
           options: ['느림', '보통', '빠름'],
-          qid: 'wrinkle_4'
+          qid: 'wrinkle_4',
+          category: '주름'
         },
         {
-          question: '목 주름 정도는?',
+          question: '24. 목 주름 정도는?',
           options: ['뚜렷', '약간', '없음'],
-          qid: 'wrinkle_5'
+          qid: 'wrinkle_5',
+          category: '주름'
         },
         {
-          question: '턱선·볼 처짐 정도는?',
+          question: '25. 턱선·볼 처짐 정도는?',
           options: ['뚜렷', '약간', '없음'],
-          qid: 'wrinkle_6'
+          qid: 'wrinkle_6',
+          category: '주름'
         }
       ]
       

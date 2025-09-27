@@ -78,12 +78,23 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f2f2f2; pa
 }
 
 .single-question .question-title {
-  text-align: center;
+  text-align: left;
   font-size: 1.125rem;
   font-weight: 600;
   color: #333;
   margin: 0;
   line-height: 1.4;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 16px;
+}
+
+.single-question .question-subtitle {
+  text-align: left;
+  font-size: 0.875rem;
+  color: #888;
+  margin: 8px 0 16px 0;
+  font-weight: 400;
 }
 
 /* Survey Content */
