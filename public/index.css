@@ -98,6 +98,31 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f2f2f2; pa
   font-weight: 400;
 }
 
+.error-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.error-fallback h2 {
+  color: #e74c3c;
+  margin-bottom: 16px;
+  font-size: 1.25rem;
+}
+
+.error-fallback button {
+  background: #006FFF;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
 /* Survey Content */
 .survey-content {
   flex: 1;

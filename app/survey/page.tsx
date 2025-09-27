@@ -1,8 +1,42 @@
 "use client"
 
-import { useState, useEffect, useCallback, useMemo, memo, Fragment } from 'react'
+import { useState, useEffect, useCallback, useMemo, memo, Fragment, Suspense, Component, useTransition } from 'react'
 import { flushSync } from 'react-dom'
 import { useRouter } from 'next/navigation'
+
+// ErrorBoundary 컴포넌트
+class ErrorBoundary extends Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Survey Error:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="error-fallback">
+          <h2>문제가 발생했습니다</h2>
+          <button onClick={() => this.setState({ hasError: false })}>
+            다시 시도
+          </button>
+        </div>
+      )
+    }
+
+    return this.props.children
+  }
+}
 
 // 타입 정의
 type Answer = 
@@ -169,6 +203,7 @@ const ScoreAllocator = ({
 // 메인 설문 컴포넌트
 export default function SurveyPage() {
   const router = useRouter()
+  const [isPending, startTransition] = useTransition()
   const [surveyState, setSurveyState] = useState<SurveyState>(() => ({
     sectionIndex: 0,
     pageIndex: 0,
@@ -243,24 +278,26 @@ export default function SurveyPage() {
 
   // 답변 업데이트 함수
   const updateAnswer = useCallback((qid: string, answer: Answer) => {
-    flushSync(() => {
-      setSurveyState(prev => {
-        if (!prev) return prev
-        try {
-          return {
-            ...prev,
-            answers: {
-              ...prev.answers,
-              [qid]: answer
+    startTransition(() => {
+      flushSync(() => {
+        setSurveyState(prev => {
+          if (!prev) return prev
+          try {
+            return {
+              ...prev,
+              answers: {
+                ...prev.answers,
+                [qid]: answer
+              }
             }
+          } catch (error) {
+            console.error('Error updating answer:', error)
+            return prev
           }
-        } catch (error) {
-          console.error('Error updating answer:', error)
-          return prev
-        }
+        })
       })
     })
-  }, [])
+  }, [startTransition])
 
   // 다음 페이지로 이동
   const goToNext = useCallback(() => {
@@ -463,51 +500,67 @@ export default function SurveyPage() {
     router.push('/survey/results')
   }, [router])
 
+  // 안전한 페이지 렌더링 컴포넌트
+  const SafePageContent = memo(() => {
+    try {
+      return (
+        <Suspense fallback={<div>로딩 중...</div>}>
+          <ErrorBoundary>
+            {renderCurrentPage()}
+          </ErrorBoundary>
+        </Suspense>
+      )
+    } catch (error) {
+      console.error('SafePageContent error:', error)
+      return <div>페이지를 불러올 수 없습니다.</div>
+    }
+  })
+
   return (
-    <div className="survey-container">
-      {/* 프로그레스 바 - 기본 정보 페이지에서는 숨김 */}
-      {surveyState.sectionIndex > 0 && (
-        <ProgressSteps currentSectionIndex={surveyState.sectionIndex - 1} />
-      )}
-      
-      {/* 페이지 제목 */}
-      <div className="survey-header">
-        <h1 className="survey-title">{currentPageInfo.title}</h1>
-      </div>
-
-      {/* 페이지 내용 */}
-      <div className="survey-content">
-        <div key={`content-${surveyState.sectionIndex}-${surveyState.pageIndex}`}>
-          {renderCurrentPage()}
+    <ErrorBoundary>
+      <div className="survey-container">
+        {/* 프로그레스 바 - 기본 정보 페이지에서는 숨김 */}
+        {surveyState.sectionIndex > 0 && (
+          <ProgressSteps currentSectionIndex={surveyState.sectionIndex - 1} />
+        )}
+        
+        {/* 페이지 제목 */}
+        <div className="survey-header">
+          <h1 className="survey-title">{currentPageInfo.title}</h1>
         </div>
-      </div>
 
-      {/* 네비게이션 */}
-      <StepNav
-        onPrev={goToPrev}
-        onNext={goToNext}
-        showPrev={!isFirstPage}
-        nextLabel={isLastPage ? "결과 보기" : "다음"}
-        nextDisabled={isNextDisabled()}
-      />
+        {/* 페이지 내용 */}
+        <div className="survey-content">
+          <SafePageContent />
+        </div>
 
-      {/* 제품 등록 안내 모달 */}
-      {showProductModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <p className="modal-text">루틴 추천은 내 제품 등록 후 진행됩니다</p>
-            <div className="modal-buttons">
-              <button className="modal-btn secondary" onClick={handleProductModalSkip}>
-                나중에 하기
-              </button>
-              <button className="modal-btn primary" onClick={handleProductModalConfirm}>
-                확인
-              </button>
+        {/* 네비게이션 */}
+        <StepNav
+          onPrev={goToPrev}
+          onNext={goToNext}
+          showPrev={!isFirstPage}
+          nextLabel={isLastPage ? "결과 보기" : "다음"}
+          nextDisabled={isNextDisabled()}
+        />
+
+        {/* 제품 등록 안내 모달 */}
+        {showProductModal && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <p className="modal-text">루틴 추천은 내 제품 등록 후 진행됩니다</p>
+              <div className="modal-buttons">
+                <button className="modal-btn secondary" onClick={handleProductModalSkip}>
+                  나중에 하기
+                </button>
+                <button className="modal-btn primary" onClick={handleProductModalConfirm}>
+                  확인
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </ErrorBoundary>
   )
 
   // 현재 페이지 렌더링
